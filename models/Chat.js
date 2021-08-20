@@ -10,6 +10,11 @@ module.exports = function(sequelize){
             autoIncrement: true,
             allowNull: false
         },
+        roomNo: {
+            field: 'roomNo',
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         type: {
             field: 'type',
             type: DataTypes.ENUM('TEXT','IMG'),
