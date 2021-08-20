@@ -1,9 +1,19 @@
 const models = require('../models');
 const redis = require('../redis')
 module.exports = {
-    getUserList: async (req,res,next) => {
+    getRoomList: async (req,res,next) => {
         try{
-            const results = await models.User.findAll();
+            const {userNo} = req.query;
+            const results = await models.Room.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true
+                        , where: {
+                            [`$Participants.userNo$`]: userNo
+                        }
+                    }
+                ]
+            });
             res
                 .status(200)
                 .send({
@@ -12,6 +22,31 @@ module.exports = {
                     message: null
                 });
         } catch (err){
+            next(err);
+        }
+    },
+    getChatList : async (req,res,next) => {
+        try{
+            const {roomNo} = req.query;
+            const results = await models.Chat.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo
+                        }
+                    }
+                ],
+                order: [['no','ASC']]
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
             next(err);
         }
     }
