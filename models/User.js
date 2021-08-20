@@ -19,6 +19,11 @@ module.exports = function(sequelize){
             type: DataTypes.STRING(45),
             allowNull: false
         },
+        phoneNumber: {
+            field: 'phoneNumber',
+            type: DataTypes.STRING(11),
+            allowNull: false
+        },
         password: {
             field: 'password',
             type: DataTypes.STRING(200),
