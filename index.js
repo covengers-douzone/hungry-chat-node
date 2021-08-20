@@ -5,7 +5,8 @@
         const path = require('path');
         const dotenv = require('dotenv');
         const socketio = require('socket.io');
-        const redis = require('./redis')
+        const redis = require('./redis');
+        const cors = require('cors'); // cross origin
 
         // 1. Startup Arguments
         const argv = require('minimist')(process.argv.slice(2));
@@ -24,6 +25,8 @@
 
         // 6. Application Setup
         const application = express()
+            // 6-0. cross origin
+            .use(cors())
             // 6-1. Session Environment
             .use(session({
                 secret: process.env.SESSION_SECRET,
