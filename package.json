@@ -1,0 +1,35 @@
+{
+  "name": "redis-03",
+  "version": "1.0.0",
+  "description": "> Node.js에서 Redis를 어떻게 활용 할까?",
+  "main": "redis-conf.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "npx mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "compass-sass-mixins": "^0.12.7",
+    "cors": "2.8.5",
+    "dotenv": "^10.0.0",
+    "ejs": "^3.1.6",
+    "express": "4.17.1",
+    "express-session": "1.17.2",
+    "http": "0.0.1-security",
+    "minimist": "1.2.5",
+    "mysql2": "^2.3.0",
+    "net": "^1.0.2",
+    "redis": "^3.1.2",
+    "sequelize": "^6.6.5",
+    "socket.io": "4.1.3",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5"
+  },
+  "devDependencies": {
+    "mocha": "^9.0.3",
+    "nodemon": "^2.0.12"
+  }
+}
