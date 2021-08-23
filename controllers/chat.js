@@ -27,7 +27,38 @@ module.exports = {
     },
     getChatList : async (req,res,next) => {
         try{
-            const {roomNo} = req.query;
+
+            const roomNo = req.params.roomNo;
+
+
+
+            const results = await models.Chat.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo.toString()
+                        }
+                    }
+                ],
+                order: [['no','ASC']]
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
+            next(err);
+        }
+    },
+    send : async(req ,res , next ) => {
+        try{
+            const {data} = req.body;
+            Data.message;
+
             const results = await models.Chat.findAll({
                 include: [
                     {
