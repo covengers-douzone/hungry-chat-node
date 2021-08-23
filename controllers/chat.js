@@ -28,7 +28,7 @@ module.exports = {
     getChatList : async (req,res,next) => {
         try{
 
-            const roomNo = req.params.roomNo;
+            const roomNo = req.params.toString()
 
 
 
@@ -37,7 +37,7 @@ module.exports = {
                     {
                         model: models.Participant, as: 'Participant', required: true
                         , where: {
-                            [`$Participant.roomNo$`]: roomNo.toString()
+                            [`$Participant.roomNo$`]: roomNo
                         }
                     }
                 ],
@@ -56,19 +56,14 @@ module.exports = {
     },
     send : async(req ,res , next ) => {
         try{
-            const {data} = req.body;
-            Data.message;
-
-            const results = await models.Chat.findAll({
-                include: [
-                    {
-                        model: models.Participant, as: 'Participant', required: true
-                        , where: {
-                            [`$Participant.roomNo$`]: roomNo
-                        }
-                    }
-                ],
-                order: [['no','ASC']]
+            console.log("send" + req.body.toString());
+            const roomNo = req.body.roomNo;
+            const type = "TEXT"
+            const contents = req.body.contents
+            const notReadCount = 0;
+            const participantNo =  1;
+            const results = await models.Chat.create({
+                 roomNo , type , contents , notReadCount , participantNo
             });
             res
                 .status(200)
