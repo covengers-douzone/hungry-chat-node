@@ -27,10 +27,7 @@ module.exports = {
     },
     getChatList : async (req,res,next) => {
         try{
-
             const roomNo = req.params.roomNo;
-
-
 
             const results = await models.Chat.findAll({
                 include: [
