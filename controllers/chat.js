@@ -72,6 +72,42 @@ module.exports = {
         } catch(err){
             next(err);
         }
+    },
+    create : async(req ,res , next ) => {
+        try{
+
+            // Room Table 관련
+            const title = req.body.title;
+            const password = "";
+            const type = "public";
+
+            // participant
+
+            const role = "ROLE_HOST"
+            const status = 1;
+            const lastReadAt = new Date().toString();
+            let roomNo = await models.Room.max('no')
+            roomNo++;
+            const userNo = 1;
+            const nickName = "Townsend Sear";
+
+
+            await models.Room.create({
+                title,password,type
+            });
+            const results = await models.Participant.create({
+                role , status , lastReadAt , roomNo ,userNo , nickName
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
+            next(err);
+        }
     }
     // readAll: async function(req, res, next) {
     //     try {
