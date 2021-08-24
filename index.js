@@ -76,8 +76,7 @@
         let info = {}
         io.on('connection', socket => {
 
-
-    })}
+        })}
 )();
 
 

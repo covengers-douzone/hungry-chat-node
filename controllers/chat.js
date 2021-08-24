@@ -1,9 +1,9 @@
 const models = require('../models');
 const redis = require('../redis')
 module.exports = {
-    getRoomList: async (req,res,next) => {
-        try{
-            const {userNo} = req.query;
+    getRoomList: async (req, res, next) => {
+        try {
+            const userNo = req.params.userNo;
             const results = await models.Room.findAll({
                 include: [
                     {
@@ -21,14 +21,13 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             next(err);
         }
     },
-    getChatList : async (req,res,next) => {
-        try{
+    getChatList: async (req, res, next) => {
+        try {
             const roomNo = req.params.roomNo;
-
             const results = await models.Chat.findAll({
                 include: [
                     {
@@ -38,7 +37,7 @@ module.exports = {
                         }
                     }
                 ],
-                order: [['no','ASC']]
+                order: [['no', 'ASC']]
             });
             res
                 .status(200)
@@ -47,20 +46,20 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
-    send : async(req ,res , next ) => {
-        try{
+    send: async (req, res, next) => {
+        try {
             console.log("send" + req.body.toString());
             const roomNo = req.body.roomNo;
             const type = "TEXT"
             const contents = req.body.contents
             const notReadCount = 0;
-            const participantNo =  1;
+            const participantNo = 1;
             const results = await models.Chat.create({
-                 roomNo , type , contents , notReadCount , participantNo
+                roomNo, type, contents, notReadCount, participantNo
             });
             res
                 .status(200)
@@ -69,7 +68,7 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     }
