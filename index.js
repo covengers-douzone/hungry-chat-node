@@ -78,7 +78,7 @@
         const subClients = [];
 
         io.on('connection', socket => {
-            socket.on('join',({nickName,roomNo})=>{
+            socket.on('join',({nickName,roomNo},callback)=>{
                 const user = userJoin(socket.id,nickName,roomNo);
                 console.log(user);
 
@@ -102,17 +102,34 @@
                 subClients.push(subClient);
 
                 socket.join(user.room); // room 입장
-                //
-                // // welcome message
-                // socket.emit('message',formatMessage(botName, '방에 입장하셨습니다.')); // 막 입장한 사람에게 보내는 메세지
-                // socket.broadcast.to(user.room).emit('message',formatMessage(botName,  `${user.username}님이 채팅방에 입장하였습니다.`)); // 모두에게 들어온 사람을 환영하는 메세지
+
+                callback({
+                    status: 'ok'
+                })
                 // //  Send users and room info to insert innerText of navigation bar
                 // io.to(user.room).emit('roomUsers',{
                 //     room: user.room,
                 //     users: getRoomUsers(user.room)
                 // })
             });
+            // Runs when client disconnects
+           socket.on('disconnect',()=> {
+               const user = userLeave(socket.id);
+               if (user) {
+                   // // 나간 사람은 user 목록에서 지움
+                   // io.to(user.room).emit('roomUsers', {
+                   //     room: user.room,
+                   //     users: getRoomUsers(user.room)
+                   // });
 
+                   // unsubscribe && 객체 없애기
+                   // const subClient = subClients.filter((subClient) => {
+                   //     return (subClient['socketid'] === socket.id)
+                   // });
+                   // subClient[0]['subClient'].unsubscribe();
+                   // subClients.splice(subClients.indexOf(subClient[0]));
+               }
+           });
         })}
 )();
 

@@ -60,10 +60,10 @@ module.exports = {
         try{
             console.log("send" + req.body.toString());
             const roomNo = req.body.roomNo;
+            const participantNo = req.body.participantNo;
+            const contents = req.body.contents;
             const type = "TEXT"
-            const contents = req.body.contents
             const notReadCount = 0;
-            const participantNo =  1;
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
@@ -81,7 +81,7 @@ module.exports = {
     },
     create : async(req ,res , next ) => {
         try{
-
+            console.log(req.body);
             // Room Table 관련
             const title = req.body.title;
             const password = "";
@@ -94,7 +94,7 @@ module.exports = {
             const lastReadAt = new Date().toString();
             let roomNo = await models.Room.max('no')
             roomNo++;
-            const userNo = 1;
+            const userNo = req.body.UserNo;
             const nickName = "Townsend Sear";
 
 
@@ -114,85 +114,30 @@ module.exports = {
         } catch(err){
             next(err);
         }
-    }
-    // readAll: async function(req, res, next) {
-    //     try {
-    //         const results = await model.findAllUsers();
-    //         res
-    //             .status(200)
-    //             .send({
-    //                 result: 'success',
-    //                 data: results,
-    //                 message: null
-    //             });
-    //
-    //
-    //     } catch(err){
-    //       next(err);
-    //     }
-    // },
-    // send: async function(req, res, next) {
-    //
-    //     try {
-    //         console.log("fetch" + req.params);
-    //
-    //         const results = req.params;
-    //         res
-    //             .status(200)
-    //             .send({
-    //                 result: 'success',
-    //                 data: results,
-    //                 message: null
-    //             });
-    //   new redis().publish(`${req.params.room}` , `${req.params.user}:${req.params.room}:${req.params.message}`)
-    //
-    //     } catch(err){
-    //         next(err);
-    //     }
-    // },
-    //  join: async function(req, res, next) {
-    //     try {
-    //
-    //         const results = await model.findAllUsers();
-    //         res
-    //             .status(200)
-    //             .send({
-    //                 result: 'success',
-    //                 data: results,
-    //                 message: null
-    //
-    //             });
-    //     } catch(err){
-    //         next(err);
-    //     }
-    // },
-    // exit: async function(req, res, next) {
-    //     try {
-    //         const results = await model.findAllUsers();
-    //         res
-    //             .status(200)
-    //             .send({
-    //                 result: 'success',
-    //                 data: results,
-    //                 message: null
-    //             });
-    //     } catch(err){
-    //         next(err);
-    //     }
-    // },
-    // create: async function(req, res, next) {
-    //     try {
-    //         const results = await model.findAllUsers();
-    //         res
-    //             .status(200)
-    //             .send({
-    //                 result: 'success',
-    //                 data: results,
-    //                 message: null
-    //             });
-    //     } catch(err){
-    //         next(err);
-    //     }
-    // },
+    },
+    updateStatus: async(req ,res , next ) => {
+            try{
+                console.log(req.body);
+                const ParticipantNo = req.body.ParticipantNo;
+                const status = req.body.status;
 
+                const results = await models.Participant.update({
+                    status: status
+                },{
+                    where: {
+                        no: ParticipantNo
+                    }
+                });
+
+                res
+                    .status(200)
+                    .send({
+                        result: 'success',
+                        data: results,
+                        message: null
+                    });
+            } catch(err){
+                next(err);
+            }
+        }
 }

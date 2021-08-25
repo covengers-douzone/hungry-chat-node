@@ -9,4 +9,5 @@ router.route('/chatlist/:roomNo').get(controller.getChatList);
 // router.route('/exitRoom').get(controller.exit);
 router.route('/message').post(controller.send);
 router.route('/create').post(controller.create);
+router.route('/setStatus').post(controller.updateStatus);
 module.exports = router;
