@@ -1,9 +1,14 @@
 const models = require('../models');
-const redis = require('../redis')
+const redis = require('redis');
+const client = redis.createClient({host: "localhost", port: 6379});
+const pubClient = client.duplicate();
+const moment = require('moment');
+
 module.exports = {
     getRoomList: async (req,res,next) => {
         try{
-            const {userNo} = req.query;
+            const userNo = req.params.userNo;
+            console.log(userNo,req.params.userNo);
             const results = await models.Room.findAll({
                 include: [
                     {
@@ -62,6 +67,7 @@ module.exports = {
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
+            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${0}`)
             res
                 .status(200)
                 .send({
