@@ -8,7 +8,7 @@ module.exports = {
     getRoomList: async (req,res,next) => {
         try{
             const userNo = req.params.userNo;
-            console.log(userNo,req.params.userNo);
+            console.log("UERNO!!!!!!!!!!!!!!:" + userNo,req.params.userNo);
             const results = await models.Room.findAll({
                 include: [
                     {
