@@ -80,7 +80,6 @@ module.exports = {
     },
     create : async(req ,res , next ) => {
         try{
-            console.log(req.body);
             // Room Table 관련
             const title = req.body.title;
             const password = "";

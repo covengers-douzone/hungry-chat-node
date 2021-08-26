@@ -9,6 +9,12 @@
         const cors = require('cors'); // cross origin
         const {userJoin, getCurrentUser, userLeave, getRoomUsers} = require('./utils/users.js');
 
+
+        const corsOptions = {
+            origin: true,
+            credentials: true,
+        };
+
         // 1. Startup Arguments
         const argv = require('minimist')(process.argv.slice(2));
 
@@ -27,7 +33,7 @@
         // 6. Application Setup
         const application = express()
             // 6-0. cross origin
-            .use(cors())
+            .use(cors(corsOptions))
             // 6-1. Session Environment
             .use(session({
                 secret: process.env.SESSION_SECRET,
@@ -102,7 +108,6 @@
                 subClients.push(subClient);
 
                 socket.join(user.room); // room 입장
-
                 callback({
                     status: 'ok'
                 })

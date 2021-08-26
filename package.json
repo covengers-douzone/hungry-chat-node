@@ -30,6 +30,7 @@
     "winston-daily-rotate-file": "^4.5.5"
   },
   "devDependencies": {
+    "jsonwebtoken": "^8.5.1",
     "mocha": "^9.1.0",
     "nodemon": "^2.0.12"
   }
