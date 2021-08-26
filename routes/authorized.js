@@ -42,11 +42,3 @@ module.exports = function(role) {
         }
     }
 }
-
-
-
-
-// if(req.accepts('html')) {
-//     res.redirect(req.session.authUser ? '/' : '/user/login');
-//     return;
-// }
