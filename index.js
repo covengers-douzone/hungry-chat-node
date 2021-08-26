@@ -79,6 +79,7 @@
 
         io.on('connection', socket => {
             socket.on('join',({nickName,roomNo},callback)=>{
+                console.log(nickName,roomNo)
                 const user = userJoin(socket.id,nickName,roomNo);
                 console.log(user);
 
@@ -90,7 +91,6 @@
                 subClient['subClient'].subscribe(`${roomNo}`);
                 subClient['subClient'].on('message', (roomName, message) => {
                     // message : JavaScript:배유진:안녕~:3:05 pm
-
                     const [redisRoomNo, redisUserno, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
                     socket.emit('message', {
                         socketUserNo: redisUserno,
@@ -122,12 +122,14 @@
                    //     users: getRoomUsers(user.room)
                    // });
 
-                   // unsubscribe && 객체 없애기
-                   // const subClient = subClients.filter((subClient) => {
-                   //     return (subClient['socketid'] === socket.id)
-                   // });
-                   // subClient[0]['subClient'].unsubscribe();
-                   // subClients.splice(subClients.indexOf(subClient[0]));
+                   //unsubscribe && 객체 없애기
+                   const subClient = subClients.filter((subClient) => {
+                       return (subClient['socketid'] === socket.id)
+                   });
+                   if(subClient){
+                       subClient[0]['subClient'].unsubscribe();
+                       subClients.splice(subClients.indexOf(subClient[0]));
+                   }
                }
            });
         })}
