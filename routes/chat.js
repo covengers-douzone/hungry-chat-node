@@ -15,4 +15,5 @@ router.route('/chatlist/:roomNo').get(controller.getChatList);
 router.route('/message').post(controller.send);
 router.route('/create').post(controller.create);
 router.route('/setStatus').post(controller.updateStatus);
+router.route('/getFriendList').post(controller.getFriendList);
 module.exports = router;

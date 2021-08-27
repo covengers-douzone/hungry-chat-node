@@ -92,7 +92,7 @@
                 // sub
                 const subClient = {
                     socketid: socket.id,
-                    subClient: redis.createClient({ host: "localhost", port: 6379 })
+                    subClient: redis.createClient({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT })
                 }
                 subClient['subClient'].subscribe(`${roomNo}`);
                 subClient['subClient'].on('message', (roomName, message) => {
