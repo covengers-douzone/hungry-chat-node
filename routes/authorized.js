@@ -39,6 +39,12 @@ module.exports = function(role) {
             });
         } catch (e){
             console.log("Error From Node:"+e.message);
+
+            res.status(500).send({
+                result: "fail",
+                data: null,
+                message: "Access Denied"
+            });
         }
     }
 }
