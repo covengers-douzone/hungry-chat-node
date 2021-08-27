@@ -52,7 +52,14 @@ module.exports = {
                     message: null
                 });
         } catch(err){
-            next(err);
+            res
+                .status(200)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: "System Error"
+                });
+            // next(err);
         }
     },
     send : async(req ,res , next ) => {
