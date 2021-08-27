@@ -14,29 +14,34 @@ module.exports = function(role) {
         // token 값 null 검사
         try{
             if(token){
-                let decoded = await jwt.verify(token);
+                let decoded = await jwt.verify(res,token);
                 console.log(decoded);
                 console.log(decoded.role);
-
-                if(decoded !== TOKEN_EXPIRED || decoded !== TOKEN_INVALID){
-                    const results = await models.User.findOne({
-                        attributes: ['role'],// DB 토큰
-                        where: {
-                            token: "Bearer " + token
-                        }
-                    })
-                    if(results !== null && results.role === role){
-                        next();
-                        return;
+                // new JsonWebTokenError("Expired Token");
+                // if(decoded !== TOKEN_EXPIRED || decoded !== TOKEN_INVALID){
+                const results = await models.User.findOne({
+                    attributes: ['role'],// DB 토큰
+                    where: {
+                        token: "Bearer " + token
                     }
+                })
+                // if(results !== null && results.role === role){
+                // }
+                if(results === null || results.role !== role){
+                    throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
                 }
             }
+
+            next();
+
+            // }
             // 없다면 Access Denied
-            res.status(403).send({
-                result: "fail",
-                data: null,
-                message: "Access Denied"
-            });
+            // res.status(403).send({
+            //     result: "fail",
+            //     data: null,
+            //     message: "Access Denied"
+            // });
+
         } catch (e){
             console.log("Error From Node:"+e.message);
 

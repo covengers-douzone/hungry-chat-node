@@ -26,7 +26,7 @@ module.exports = {
                     message: null
                 });
         } catch (err){
-            next(err);
+            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
     getChatList : async (req,res,next) => {
@@ -59,7 +59,6 @@ module.exports = {
                     data: null,
                     message: "System Error"
                 });
-            // next(err);
         }
     },
     send : async(req ,res , next ) => {
