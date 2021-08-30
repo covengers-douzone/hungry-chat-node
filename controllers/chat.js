@@ -96,7 +96,7 @@ module.exports = {
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
-            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${0}:${results.no}`)
+            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${notReadCount}:${results.no}`)
             res
                 .status(200)
                 .send({
@@ -134,7 +134,7 @@ module.exports = {
                 }
             })
 
-
+            console.log(results);
             res
                 .status(200)
                 .send({
@@ -177,12 +177,11 @@ module.exports = {
             const results = await models.Room.create({
                 title,password,type,headCount
             });
-            console.log(results);
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: results,
+                    data: results.no,
                     message: null
                 });
         } catch(err){
@@ -297,7 +296,6 @@ module.exports = {
     updateLastReadAt: async(req ,res , next ) => {
         try{
             const participantNo = req.body.participantNo;
-            console.log('now',new Date().toString());
             const results = await models.Participant.update({
                 lastReadAt: new Date().toString()
             },{

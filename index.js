@@ -132,10 +132,12 @@
                    const subClient = subClients.filter((subClient) => {
                        return (subClient['socketid'] === socket.id)
                    });
-                   if(subClient){
+                   console.log(subClient);
+                   if(subClient && Array.isArray(subClient) && subClient[0]){
                        subClient[0]['subClient'].unsubscribe();
+                       subClient[0]['subClient'].quit();
                        subClients.splice(subClients.indexOf(subClient[0]));
-                   }
+                    }
                }
            });
         })}
