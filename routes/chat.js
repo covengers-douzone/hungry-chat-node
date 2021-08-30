@@ -13,4 +13,6 @@ router.route('/chatlist/:roomNo').get(auth("ROLE_USER"), controller.getChatList)
 router.route('/message').post(auth("ROLE_USER"), controller.send);
 router.route('/create').post(auth("ROLE_USER"), controller.create);
 router.route('/setStatus').post(auth("ROLE_USER"), controller.updateStatus);
+router.route('/getNickname').get(auth("ROLE_USER"), controller.getNickname);
+
 module.exports = router;

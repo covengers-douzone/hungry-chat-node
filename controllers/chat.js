@@ -5,6 +5,21 @@ const pubClient = client.duplicate();
 const moment = require('moment');
 
 module.exports = {
+    getNickname: async (req,res) => {
+        try{
+            console.log(req.body.userNo);
+            const result = await models.User.findOne({
+               attributes:["nickname"],
+                where:{
+                   no: req.body.userNo
+                }
+            })
+
+            console.log(result);
+        } catch (e){
+            console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
+        }
+    },
     getRoomList: async (req,res,next) => {
         try{
             const userNo = req.params.userNo;
