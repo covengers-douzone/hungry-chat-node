@@ -3,6 +3,7 @@ const redis = require('redis');
 const client = redis.createClient({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT })
 const pubClient = client.duplicate();
 const moment = require('moment');
+const {Op} = require('sequelize');
 
 module.exports = {
     getRoomList: async (req,res,next) => {
@@ -64,7 +65,6 @@ module.exports = {
     },
     getHeadCount : async(req ,res , next ) => {
         try{
-            console.log('getHeadCount',req.body);
             const headCount = await models.Room.findOne({
                     include: [
                         {
@@ -75,7 +75,6 @@ module.exports = {
                         }
                     ]
                 });
-            console.log(headCount.headCount);
             res
                 .status(200)
                 .send({
@@ -89,7 +88,6 @@ module.exports = {
     },
     send : async(req ,res , next ) => {
         try{
-            console.log("send" + req.body.toString());
             const roomNo = req.body.roomNo;
             const participantNo = req.body.participantNo;
             const contents = req.body.contents;
@@ -98,7 +96,6 @@ module.exports = {
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
-            console.log(results.no);
             await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${0}:${results.no}`)
             res
                 .status(200)
@@ -109,6 +106,44 @@ module.exports = {
                 });
         } catch(err){
             next(err);
+        }
+    },
+    // UPDATE chat c
+    //  INNER JOIN participant p
+    //     ON c.participantNo = p.no -- c.roomNo = p.roomNo
+    //    SET c.notReadCount =  c.notReadCount - 1
+    //    where p.lastReadAt < c.createdAt
+    //    AND p.no = 1
+    //    ;
+    updateRoomNotReadCount: async(req ,res , next ) => {
+        try{
+            const participantNo = req.body.participantNo;
+
+            const participant = await models.Participant.findOne({
+                where: {
+                    no: participantNo
+                }
+            });
+            const results = await models.Chat.update({
+                notReadCount: models.sequelize.Sequelize.literal('notReadCount - 1')
+            },{
+                where: {
+                    createdAt: {
+                        [Op.gt]: participant.lastReadAt
+                    }
+                }
+            })
+
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
         }
     },
     updateSendNotReadCount: async(req ,res , next ) => {
@@ -132,27 +167,41 @@ module.exports = {
             next(e);
         }
     },
-    create : async(req ,res , next ) => {
+    createRoom : async(req ,res , next ) => {
         try{
-            // Room Table 관련
             const title = req.body.title;
-            const password = "";
-            const type = "public";
+            const headCount = req.body.headCount;
+            const type = req.body.type;
+            const password = req.body.password;
 
-            // participant
-
-            const role = "ROLE_HOST"
-            const status = 1;
-            const lastReadAt = new Date().toString();
-            let roomNo = await models.Room.max('no')
-            roomNo++;
-            const userNo = req.body.UserNo;
-            const nickName = "Townsend Sear";
-
-
-            await models.Room.create({
-                title,password,type
+            const results = await models.Room.create({
+                title,password,type,headCount
             });
+            console.log(results);
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
+            next(err);
+        }
+    },
+    createParticipant : async(req ,res , next ) => {
+        try{
+            const role = req.body.role;
+            const status = 0;
+            const lastReadAt = new Date().toString();
+            const roomNo = req.body.roomNo;
+            const userNo = req.body.UserNo;
+            const nickName = (await models.User.findOne({
+                where: {
+                    no: userNo
+                }
+            })).nickname;
+
             const results = await models.Participant.create({
                 role , status , lastReadAt , roomNo ,userNo , nickName
             })
@@ -199,18 +248,16 @@ module.exports = {
     getFriendList: async(req ,res , next ) => {
         try{
             const UserNo = req.body.UserNo;
-            console.log("getFriendList" , UserNo);
-            const results = await models.Friend.findAll({
-                // include: [
-                //     {
-                //         model: models.Friend, as: 'Friend', required: true
-                //         , where: {
-                //             [`$Friend.userNo$`]: UserNo
-                //         }
-                //     }
-                // ],
+            const results = await models.User.findAll({
+                include: [
+                    {
+                        model: models.Friend, as: 'Friends', required: true
+                        , where: {
+                            [`$Friends.userNo$`]: UserNo
+                        }
+                    }
+                ],
             });
-            console.log(results);
             res
                 .status(200)
                 .send({
@@ -222,27 +269,6 @@ module.exports = {
             next(err);
         }
     },
-    /* UPDATE CHAT SET notReadCount = notReadCount - 1
-    WHERE 1 = 1
-    AND ParticipantNo = {}
-    */
-    joinRoom: async(req ,res , next ) => {// 채팅 메시지의 notReadCount를 감소
-        try{
-            console.log(req.body);
-            const participantNo = req.body.ParticipantNo;
-
-            const results = await models.Chat.update({
-                notReadCount: notReadCount - 1
-            },{
-                where: {
-                    ParticipantNo: participantNo,
-                }
-            });
-        } catch(err){
-            next(err);
-        }
-    },
-
     /*
        SELECT  min(A.no) FROM chat A , participant B
        WHERE 1 = 1
@@ -263,11 +289,32 @@ module.exports = {
                         attributes: ["no"]
                     }
                 ]
-
             })
         } catch(err){
             next(err);
         }
-    }
+    },
+    updateLastReadAt: async(req ,res , next ) => {
+        try{
+            const participantNo = req.body.participantNo;
+            console.log('now',new Date().toString());
+            const results = await models.Participant.update({
+                lastReadAt: new Date().toString()
+            },{
+                where: {
+                    no: participantNo
+                }
+            })
 
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    }
 }
