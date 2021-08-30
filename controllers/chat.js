@@ -62,6 +62,31 @@ module.exports = {
             // next(err);
         }
     },
+    getHeadCount : async(req ,res , next ) => {
+        try{
+            console.log('getHeadCount',req.body);
+            const headCount = await models.Room.findOne({
+                    include: [
+                        {
+                            model: models.Participant, as: 'Participants', required: true
+                            , where: {
+                                [`$Participants.no$`]: req.body.participantNo
+                            }
+                        }
+                    ]
+                });
+            console.log(headCount.headCount);
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: headCount.headCount,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
     send : async(req ,res , next ) => {
         try{
             console.log("send" + req.body.toString());
@@ -69,11 +94,12 @@ module.exports = {
             const participantNo = req.body.participantNo;
             const contents = req.body.contents;
             const type = "TEXT"
-            const notReadCount = 0;
+            const notReadCount = req.body.headCount;
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
-            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${0}`)
+            console.log(results.no);
+            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${0}:${results.no}`)
             res
                 .status(200)
                 .send({
@@ -83,6 +109,27 @@ module.exports = {
                 });
         } catch(err){
             next(err);
+        }
+    },
+    updateSendNotReadCount: async(req ,res , next ) => {
+        try{
+            const chatNo = req.body.chatNo;
+            const results = await models.Chat.update({
+                'notReadCount': models.sequelize.Sequelize.literal('notReadCount - 1')
+            },{
+                where: {
+                    no: chatNo
+                }
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
         }
     },
     create : async(req ,res , next ) => {
@@ -151,19 +198,26 @@ module.exports = {
     * */
     getFriendList: async(req ,res , next ) => {
         try{
-
             const UserNo = req.body.UserNo;
             console.log("getFriendList" , UserNo);
             const results = await models.Friend.findAll({
-                include: [
-                    {
-                        model: models.Friend, as: 'Friend', required: true
-                        , where: {
-                            [`$Friend.UserNo$`]: UserNo
-                        }
-                    }
-                ],
+                // include: [
+                //     {
+                //         model: models.Friend, as: 'Friend', required: true
+                //         , where: {
+                //             [`$Friend.userNo$`]: UserNo
+                //         }
+                //     }
+                // ],
             });
+            console.log(results);
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
         } catch(err){
             next(err);
         }
