@@ -14,7 +14,6 @@ module.exports = {
                    no: req.body.userNo
                 }
             })
-
             console.log(result);
         } catch (e){
             console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);

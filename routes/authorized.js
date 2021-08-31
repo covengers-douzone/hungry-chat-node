@@ -15,9 +15,9 @@ module.exports = function(role) {
         try{
             if(token){
                 let decoded = await jwt.verify(res,token);
-                // console.log(decoded);
-                // console.log(decoded.role);
-                // console.log("Token subject !!!!"+decoded.subject);
+                console.log(decoded);
+                console.log(decoded.role);
+                console.log("Token subject !!!!"+decoded.subject);
                 const results = await models.User.findOne({
                     attributes: ['role'],// DB 토큰
                     where: {
