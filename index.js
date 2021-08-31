@@ -99,13 +99,10 @@
                 subClient['subClient'].on('message', (roomName, message) => {
                     // message : JavaScript:배유진:안녕~:3:05 pm
                     const [redisRoomNo, redisUserno, redisMessage, redisHour, redisMin, notReadCount,chatNo] = message.split(':');
-                    socket.emit('message', {
+                    socket.emit('message',{
                         socketUserNo: redisUserno,
-                        text: redisMessage,
-                        date: `${redisHour}:${redisMin}`,
-                        notReadCount : notReadCount,
                         chatNo: chatNo
-                    })
+                    });
                 })
                 subClients.push(subClient);
 
@@ -113,21 +110,21 @@
                 callback({
                     status: 'ok'
                 })
-                // //  Send users and room info to insert innerText of navigation bar
-                // io.to(user.room).emit('roomUsers',{
-                //     room: user.room,
-                //     users: getRoomUsers(user.room)
-                // })
+                //  Send users and room info to insert innerText of navigation bar
+                io.to(user.room).emit('roomUsers',{
+                    room: user.room,
+                    users: getRoomUsers(user.room)
+                })
             });
             // Runs when client disconnects
            socket.on('disconnect',()=> {
                const user = userLeave(socket.id);
                if (user) {
-                   // // 나간 사람은 user 목록에서 지움
-                   // io.to(user.room).emit('roomUsers', {
-                   //     room: user.room,
-                   //     users: getRoomUsers(user.room)
-                   // });
+                   // 나간 사람은 user 목록에서 지움
+                   io.to(user.room).emit('roomUsers', {
+                       room: user.room,
+                       users: getRoomUsers(user.room)
+                   });
 
                    //unsubscribe && 객체 없애기
                    const subClient = subClients.filter((subClient) => {
