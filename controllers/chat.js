@@ -63,6 +63,27 @@ module.exports = {
             // next(err);
         }
     },
+    getChat: async (req,res,next) => {
+        try{
+            const chatNo = req.params.chatNo;
+
+            const results = await models.Chat.findOne({
+                where: {
+                    no: chatNo
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
     getHeadCount : async(req ,res , next ) => {
         try{
             const headCount = await models.Room.findOne({
@@ -130,7 +151,8 @@ module.exports = {
                 where: {
                     createdAt: {
                         [Op.gt]: participant.lastReadAt
-                    }
+                    },
+                    roomNo: participant.roomNo
                 }
             })
 
