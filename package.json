@@ -18,9 +18,11 @@
     "ejs": "^3.1.6",
     "express": "4.17.1",
     "express-session": "1.17.2",
+    "form-data": "^4.0.0",
     "http": "0.0.1-security",
     "minimist": "1.2.5",
     "moment": "^2.29.1",
+    "multer": "^1.4.3",
     "mysql2": "^2.3.0",
     "net": "^1.0.2",
     "redis": "^3.1.2",
@@ -32,6 +34,7 @@
   "devDependencies": {
     "jsonwebtoken": "^8.5.1",
     "mocha": "^9.1.0",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "pipeline": "^0.1.3"
   }
 }

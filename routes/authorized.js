@@ -5,7 +5,9 @@ const TOKEN_INVALID = -2;
 
 module.exports = function(role) {
     return async function(req, res, next) {
-        let splitToken = req.headers.authorization.split(' ');
+        console.log("-------------------------------------------AUTH-------------------------------------------")
+        console.log(req.headers.authorization);
+        let splitToken=req.headers.authorization.split(' ');
         let token = splitToken[1];
         // 1. Token에 대한 검사 진행
         // 2. DB 정보 비교
@@ -14,29 +16,23 @@ module.exports = function(role) {
         // token 값 null 검사
         try{
             if(token){
-                let decoded = await jwt.verify(token);
+                let decoded = await jwt.verify(res,token);
                 console.log(decoded);
                 console.log(decoded.role);
-
-                if(decoded !== TOKEN_EXPIRED || decoded !== TOKEN_INVALID){
-                    const results = await models.User.findOne({
-                        attributes: ['role'],// DB 토큰
-                        where: {
-                            token: "Bearer " + token
-                        }
-                    })
-                    if(results !== null && results.role === role){
-                        next();
-                        return;
+                console.log("Token subject !!!! : "+ decoded.sub);
+                const results = await models.User.findOne({
+                    attributes: ['role'],// DB 토큰
+                    where: {
+                        token: "Bearer " + token
                     }
+                })
+                if(results === null || results.role !== role){
+                    throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
                 }
             }
-            // 없다면 Access Denied
-            res.status(403).send({
-                result: "fail",
-                data: null,
-                message: "Access Denied"
-            });
+
+            next();
+
         } catch (e){
             console.log("Error From Node:"+e.message);
 
