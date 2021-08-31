@@ -1,6 +1,18 @@
 const express = require('express');
 const controller = require('../controllers/chat');
 const auth = require('./authorized');
+const multer = require("multer");
+
+
+const storage = multer.diskStorage({
+    destination:(req, file, cb) => {
+        cb(null, `${__dirname}/../public/assets/images`);
+    },
+    filename:(req, file, cb) => {
+        cb(null, Date.now() + "--" + file.originalname);
+    }
+})
+const upload = multer({storage:storage});
 
 //auth("ROLE_USER"),
 const router = express.Router();
@@ -19,5 +31,10 @@ router.route('/getHeadCount').post(controller.getHeadCount);
 router.route('/updateSendNotReadCount').post(controller.updateSendNotReadCount);
 router.route('/updateRoomNotReadCount').post(controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(controller.updateLastReadAt);
-router.route('/getNickname').get(auth("ROLE_USER"), controller.getNickname);
+
+router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
+// router.route('/getNickname').post(upload.single( "file"),auth("ROLE_USER"),controller.getNickname);
+router.route('/updateSettings').post(upload.single( "file"),controller.updateSettings);
+
+
 module.exports = router;

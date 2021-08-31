@@ -5,7 +5,9 @@ const TOKEN_INVALID = -2;
 
 module.exports = function(role) {
     return async function(req, res, next) {
-        let splitToken = req.headers.authorization.split(' ');
+        console.log("-------------------------------------------AUTH-------------------------------------------")
+        console.log(req.headers.authorization);
+        let splitToken=req.headers.authorization.split(' ');
         let token = splitToken[1];
         // 1. Token에 대한 검사 진행
         // 2. DB 정보 비교
@@ -17,7 +19,7 @@ module.exports = function(role) {
                 let decoded = await jwt.verify(res,token);
                 console.log(decoded);
                 console.log(decoded.role);
-                console.log("Token subject !!!!"+decoded.subject);
+                console.log("Token subject !!!! : "+ decoded.sub);
                 const results = await models.User.findOne({
                     attributes: ['role'],// DB 토큰
                     where: {

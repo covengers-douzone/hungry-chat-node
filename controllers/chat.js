@@ -4,19 +4,76 @@ const client = redis.createClient({ host: process.env.REDIS_HOST, port: process.
 const pubClient = client.duplicate();
 const moment = require('moment');
 const {Op} = require('sequelize');
+const fs = require('fs');
+const {user} = require("../redis-conf");
 
 module.exports = {
-    getNickname: async (req,res) => {
-        try{
-            console.log(req.body.userNo);
-            const result = await models.User.findOne({
-               attributes:["nickname"],
-                where:{
-                   no: req.body.userNo
+    getUserByNo: async (req,res) => {
+            try{
+                const result = await models.User.findOne({
+                    where: {
+                        no: req.params.userNo
+                    }
+                })
+
+                console.log(result.profileImageUrl);
+                console.log(result.nickname);
+
+                const data = {
+                    profileImageUrl:result.profileImageUrl,
+                    nickname:result.nickname
                 }
-            })
-            console.log(result);
-        } catch (e){
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: data,
+                    message: null
+                });
+        } catch (err){
+            console.error(`Fetch-Api : getUserByNo Error : ${err.status} ${err.message}`);
+        }
+    },
+    updateSettings: async (req,res) => {
+        try{
+            const { file, body: {nickname, password, userNo}} = req;
+            console.log(file);
+            console.log(file.path);
+            console.log(nickname);
+            console.log(password);
+            if(!file) {
+                throw new Error('error: no file attached');
+            }
+
+            if(password === "null"){
+                await models.User.update({
+                    profileImageUrl: `http://localhost:9999/assets/images/${file.filename}`,
+                    nickname: nickname,
+                },{
+                    where:{
+                        no:userNo
+                    }
+                })
+            } else {
+                await models.User.update({
+                    profileImageUrl: file.path,
+                    nickname: nickname,
+                    password: password,
+                },{
+                    where:{
+                        no:userNo
+                    }
+                })
+            }
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: file.filename,
+                    message: null
+                });
+        } catch (err){
             console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
         }
     },
