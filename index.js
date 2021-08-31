@@ -97,12 +97,13 @@
                 subClient['subClient'].subscribe(`${roomNo}`);
                 subClient['subClient'].on('message', (roomName, message) => {
                     // message : JavaScript:배유진:안녕~:3:05 pm
-                    const [redisRoomNo, redisUserno, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
+                    const [redisRoomNo, redisUserno, redisMessage, redisHour, redisMin, notReadCount,chatNo] = message.split(':');
                     socket.emit('message', {
                         socketUserNo: redisUserno,
                         text: redisMessage,
                         date: `${redisHour}:${redisMin}`,
-                        notReadCount : notReadCount
+                        notReadCount : notReadCount,
+                        chatNo: chatNo
                     })
                 })
                 subClients.push(subClient);
@@ -131,10 +132,12 @@
                    const subClient = subClients.filter((subClient) => {
                        return (subClient['socketid'] === socket.id)
                    });
-                   if(subClient){
+                   console.log(subClient);
+                   if(subClient && Array.isArray(subClient) && subClient[0]){
                        subClient[0]['subClient'].unsubscribe();
+                       subClient[0]['subClient'].quit();
                        subClients.splice(subClients.indexOf(subClient[0]));
-                   }
+                    }
                }
            });
         })}
