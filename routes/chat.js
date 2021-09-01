@@ -35,7 +35,7 @@ router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
 // router.route('/getNickname').post(upload.single( "file"),auth("ROLE_USER"),controller.getNickname);
-router.route('/updateSettings').post(upload.single( "file"),controller.updateSettings);
+router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 
 
 module.exports = router;
