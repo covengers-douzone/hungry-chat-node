@@ -71,6 +71,13 @@ module.exports = function(sequelize){
             type: DataTypes.STRING(45),
             allowNull: true
         },
+        comments: {
+            field: 'comments',
+            type: DataTypes.TEXT,
+            allowNull: false,
+            defaultValue: 'covengers'
+        },
+
     }, {
         underscored: false, // updateAt -> updateAt (underscored: update_at)
         freezeTableName: true,

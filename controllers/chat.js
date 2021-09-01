@@ -29,6 +29,7 @@ module.exports = {
 
             result.password="";
             result.phoneNumber="";
+            result.token="";
 
             await models.Friend.create({
                 userNo:userNo,
@@ -61,6 +62,8 @@ module.exports = {
                     }
                 })
                 result.password = "";
+                result.phoneNumber = "";
+                result.token="";
             res
                 .status(200)
                 .send({
@@ -74,39 +77,35 @@ module.exports = {
     },
     updateSettings: async (req,res) => {
         try{
-            const { file, body: {nickname, password, userNo}} = req;
-            console.log(file);
-            console.log(nickname);
-            console.log(password);
-            if(!file) {
-                throw new Error('error: no file attached');
-            }
+            let { file, body: {nickname, password, userNo, comments}} = req;
+            let fileUrl;
 
-            if(password === "null"){
+            const result = await models.User.findOne({
+                where: {
+                    no: userNo
+                }
+            })
+
+            password = (password === "null" ? result.password : password);
+            fileUrl = (file === undefined ? result.profileImageUrl :  process.env.URL+process.env.UPLOADIMAGE_STORE_LOCATION+file.filename)
+
                 await models.User.update({
-                    profileImageUrl: `http://localhost:9999/assets/images/${file.filename}`,
+                    profileImageUrl: fileUrl,
+                    comments: comments,
                     nickname: nickname,
+                    password: password
                 },{
                     where:{
                         no:userNo
                     }
                 })
-            } else {
-                await models.User.update({
-                    profileImageUrl: file.path,
-                    nickname: nickname,
-                    password: password,
-                },{
-                    where:{
-                        no:userNo
-                    }
-                })
-            }
+                console.log("profile update All");
+
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: file.filename,
+                    data: fileUrl,
                     message: null
                 });
         } catch (err){
