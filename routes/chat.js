@@ -33,8 +33,9 @@ router.route('/updateSendNotReadCount').post(controller.updateSendNotReadCount);
 router.route('/updateRoomNotReadCount').post(controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
+
+router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
-// router.route('/getNickname').post(upload.single( "file"),auth("ROLE_USER"),controller.getNickname);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 
 
