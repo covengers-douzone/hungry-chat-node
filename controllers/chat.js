@@ -8,6 +8,35 @@ const fs = require('fs');
 const {user} = require("../redis-conf");
 
 module.exports = {
+    addFriend: async (req, res) => {
+        try{
+            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.
+            // 2. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 3. response
+            const username = req.body.username
+            const userNo = req.body.userNo;
+
+            // (1)
+            const result = await models.User.findOne({
+                where: {
+                    username: username
+                }
+            })
+            if(result === null){
+                throw new Error('이메일이 일치하지 않습니다. 다시 확인해주세요.');
+            }
+            // await models.Friend.create()
+        }catch (e){
+            console.log(e);
+            res
+                .status(400)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: e.message
+                });
+        }
+    },
     getUserByNo: async (req,res) => {
             try{
                 const result = await models.User.findOne({
@@ -15,20 +44,12 @@ module.exports = {
                         no: req.params.userNo
                     }
                 })
-
-                console.log(result.profileImageUrl);
-                console.log(result.nickname);
-
-                const data = {
-                    profileImageUrl:result.profileImageUrl,
-                    nickname:result.nickname
-                }
-
+                result.password = "";
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: data,
+                    data: result,
                     message: null
                 });
         } catch (err){
@@ -39,7 +60,6 @@ module.exports = {
         try{
             const { file, body: {nickname, password, userNo}} = req;
             console.log(file);
-            console.log(file.path);
             console.log(nickname);
             console.log(password);
             if(!file) {
