@@ -80,7 +80,8 @@ module.exports = {
     getRoomList: async (req,res,next) => {
         try{
             const userNo = req.params.userNo;
-            const results = await models.Room.findAll({
+
+            const roomList = (await models.Room.findAll({
                 include: [
                     {
                         model: models.Participant, as: 'Participants', required: true
@@ -89,7 +90,26 @@ module.exports = {
                         }
                     }
                 ]
+            })).map(room => {return room.no});
+
+            const results = await models.Room.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true,
+                        include: [
+                            {
+                                model: models.User, required: true
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    no:{
+                        [Op.in]: roomList
+                    }
+                }
             });
+
             res
                 .status(200)
                 .send({
@@ -396,6 +416,56 @@ module.exports = {
                 }
             })
 
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
+    getLastReadNo: async(req ,res , next ) => {
+        try{
+            const participantNo = req.body.participantNo;
+            const participant = await models.Participant.findOne({
+                where:{
+                    no: participantNo
+                }
+            });
+            const results = await models.Chat.max('no',{
+                where:{
+                    roomNo : participant.roomNo,
+                    createdAt: {
+                        [Op.lt]: participant.lastReadAt
+                    }
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
+    //update Chat SET notReadCount = 0 where roomNo = 1
+    updateChatZero: async(req ,res , next ) => {
+        try{
+            const roomNo = req.body.roomNo;
+            const results = await models.Chat.update({
+                notReadCount: 0
+            },{
+                where: {
+                    roomNo: roomNo
+                }
+            });
             res
                 .status(200)
                 .send({
