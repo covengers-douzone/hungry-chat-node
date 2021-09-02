@@ -8,6 +8,55 @@ const fs = require('fs');
 const {user} = require("../redis-conf");
 
 module.exports = {
+    getFollowerList: async(req ,res , next ) => {
+        try{
+            const UserNo = req.body.UserNo;
+            let followerList = [];
+            // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
+            const lists = (await models.Friend.findAll({
+                where: {
+                    friendNo : UserNo
+                }
+            })).map(list => list.userNo);
+
+
+            // 내가 친구추가한 사람들
+            const friendList = (await models.Friend.findAll({
+                where: {
+                    userNo : UserNo
+                }
+            })).map( friend => friend.friendNo );
+
+            // 나를 친구추가한 사람들
+            lists.map((list, i) => {
+               if(friendList[i] === undefined){
+                   followerList.push(list);
+               }
+            });
+
+            const results = await models.User.findAll({
+                where:{
+                    no:{
+                        [Op.in]: followerList
+                    }
+                }
+            });
+
+            for(let i=0; i < results.length; i++){
+                results[i].password = "";
+                results[i].phoneNumber = "";
+            }
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
+            next(err);
+        }
+    },
     addFriend: async (req, res) => {
         try{
             // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.
@@ -412,8 +461,6 @@ module.exports = {
                 results[i].password = "";
                 results[i].phoneNumber = "";
             }
-
-            console.log(results);
 
             res
                 .status(200)
