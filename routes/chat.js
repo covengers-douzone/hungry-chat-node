@@ -24,7 +24,7 @@ router.route('/getChat/:chatNo').get(controller.getChat);
 //router.route('/setStatus').post(controller.updateStatus);
 router.route('/getFriendList').post(controller.getFriendList);
 router.route('/chatlist/:roomNo').get( controller.getChatList);
-router.route('/message').post( controller.send);
+router.route('/message').post(upload.single( "file"), controller.send);
 router.route('/createRoom').post( controller.createRoom);
 router.route('/createParticipant').post( controller.createParticipant);
 router.route('/setStatus').post(controller.updateStatus);
@@ -37,5 +37,7 @@ router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserBy
 // router.route('/getNickname').post(upload.single( "file"),auth("ROLE_USER"),controller.getNickname);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 router.route('/getLastReadNo').post(controller.getLastReadNo);
+router.route('/uploadFile').post(upload.single( "file"), controller.uploadFile);
+
 
 module.exports = router;
