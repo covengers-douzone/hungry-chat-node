@@ -13,19 +13,36 @@ module.exports = {
             // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.
             // 2. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
             // 3. response
-            const username = req.body.username
-            const userNo = req.body.userNo;
+            const username = req.body.username // 친구의 이메일 계정 정보.
+            const userNo = req.body.userNo; // 사용자.
 
-            // (1)
+            // (1) 이메일 정보로 친구 정보 가져오기
             const result = await models.User.findOne({
                 where: {
                     username: username
                 }
             })
+
             if(result === null){
                 throw new Error('이메일이 일치하지 않습니다. 다시 확인해주세요.');
             }
-            // await models.Friend.create()
+
+            result.password="";
+            result.phoneNumber="";
+            result.token="";
+
+            await models.Friend.create({
+                userNo:userNo,
+                friendNo:result.no
+            })
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: result,
+                    message: null
+                });
         }catch (e){
             console.log(e);
             res
@@ -45,6 +62,8 @@ module.exports = {
                     }
                 })
                 result.password = "";
+                result.phoneNumber = "";
+                result.token="";
             res
                 .status(200)
                 .send({
@@ -58,39 +77,35 @@ module.exports = {
     },
     updateSettings: async (req,res) => {
         try{
-            const { file, body: {nickname, password, userNo}} = req;
-            console.log(file);
-            console.log(nickname);
-            console.log(password);
-            if(!file) {
-                throw new Error('error: no file attached');
-            }
+            let { file, body: {nickname, password, userNo, comments}} = req;
+            let fileUrl;
 
-            if(password === "null"){
+            const result = await models.User.findOne({
+                where: {
+                    no: userNo
+                }
+            })
+
+            password = (password === "null" ? result.password : password);
+            fileUrl = (file === undefined ? result.profileImageUrl :  process.env.URL+process.env.UPLOADIMAGE_STORE_LOCATION+file.filename)
+
                 await models.User.update({
-                    profileImageUrl: `http://localhost:9999/assets/images/${file.filename}`,
+                    profileImageUrl: fileUrl,
+                    comments: comments,
                     nickname: nickname,
+                    password: password
                 },{
                     where:{
                         no:userNo
                     }
                 })
-            } else {
-                await models.User.update({
-                    profileImageUrl: file.path,
-                    nickname: nickname,
-                    password: password,
-                },{
-                    where:{
-                        no:userNo
-                    }
-                })
-            }
+                console.log("profile update All");
+
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: file.filename,
+                    data: fileUrl,
                     message: null
                 });
         } catch (err){
@@ -392,6 +407,14 @@ module.exports = {
                     }
                 ],
             });
+
+            for(let i=0; i < results.length; i++){
+                results[i].password = "";
+                results[i].phoneNumber = "";
+            }
+
+            console.log(results);
+
             res
                 .status(200)
                 .send({
