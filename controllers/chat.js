@@ -134,6 +134,9 @@ module.exports = {
                         include: [
                             {
                                 model: models.User, required: true
+                                ,attributes: {
+                                    exclude: ['password','phoneNumber','token']
+                                }
                             }
                         ]
                     }

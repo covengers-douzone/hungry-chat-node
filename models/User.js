@@ -77,7 +77,6 @@ module.exports = function(sequelize){
             allowNull: false,
             defaultValue: 'covengers'
         },
-
     }, {
         underscored: false, // updateAt -> updateAt (underscored: update_at)
         freezeTableName: true,
