@@ -29,9 +29,9 @@ module.exports = {
 
             // 나를 친구추가한 사람들
             lists.map((list, i) => {
-               if(friendList[i] === undefined){
-                   followerList.push(list);
-               }
+                if(friendList[i] === undefined){
+                    followerList.push(list);
+                }
             });
 
             const results = await models.User.findAll({
@@ -104,15 +104,15 @@ module.exports = {
         }
     },
     getUserByNo: async (req,res) => {
-            try{
-                const result = await models.User.findOne({
-                    where: {
-                        no: req.params.userNo
-                    }
-                })
-                result.password = "";
-                result.phoneNumber = "";
-                result.token="";
+        try{
+            const result = await models.User.findOne({
+                where: {
+                    no: req.params.userNo
+                }
+            })
+            result.password = "";
+            result.phoneNumber = "";
+            result.token="";
             res
                 .status(200)
                 .send({
@@ -138,17 +138,17 @@ module.exports = {
             password = (password === "null" ? result.password : password);
             fileUrl = (file === undefined ? result.profileImageUrl :  process.env.URL+process.env.UPLOADIMAGE_STORE_LOCATION+file.filename)
 
-                await models.User.update({
-                    profileImageUrl: fileUrl,
-                    comments: comments,
-                    nickname: nickname,
-                    password: password
-                },{
-                    where:{
-                        no:userNo
-                    }
-                })
-                console.log("profile update All");
+            await models.User.update({
+                profileImageUrl: fileUrl,
+                comments: comments,
+                nickname: nickname,
+                password: password
+            },{
+                where:{
+                    no:userNo
+                }
+            })
+            console.log("profile update All");
 
             res
                 .status(200)
@@ -208,10 +208,12 @@ module.exports = {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
-    getChatList : async (req,res,next) => {
-        try{
+    getChatList: async (req, res, next) => {
+        try {
             const roomNo = req.params.roomNo;
-
+            const limit = req.params.limit;
+            const offset = req.params.offset
+            console.log("getChatList", roomNo, limit, offset)
             const results = await models.Chat.findAll({
                 include: [
                     {
@@ -221,7 +223,10 @@ module.exports = {
                         }
                     }
                 ],
-                order: [['no','ASC']]
+                order: [['no', 'ASC']],
+                limit: Number(limit),
+                offset: Number(offset)
+
             });
             res
                 .status(200)
@@ -230,7 +235,40 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
+            res
+                .status(200)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: "System Error"
+                });
+        }
+    },
+    getChatListCount: async (req, res, next) => {
+        try {
+            const roomNo = req.params.roomNo;
+
+            const results = await models.Chat.findAndCountAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (err) {
             res
                 .status(200)
                 .send({
@@ -264,15 +302,15 @@ module.exports = {
     getHeadCount : async(req ,res , next ) => {
         try{
             const headCount = await models.Room.findOne({
-                    include: [
-                        {
-                            model: models.Participant, as: 'Participants', required: true
-                            , where: {
-                                [`$Participants.no$`]: req.body.participantNo
-                            }
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true
+                        , where: {
+                            [`$Participants.no$`]: req.body.participantNo
                         }
-                    ]
-                });
+                    }
+                ]
+            });
             res
                 .status(200)
                 .send({
@@ -299,7 +337,7 @@ module.exports = {
             }
 
             const results = await models.Chat.create({
-                 roomNo , type , contents , notReadCount , participantNo
+                roomNo , type , contents , notReadCount , participantNo
             });
             await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${notReadCount}:${results.no}`)
             res
@@ -422,29 +460,29 @@ module.exports = {
         }
     },
     updateStatus: async(req ,res , next ) => {
-            try{
-                console.log(req.body);
-                const ParticipantNo = req.body.ParticipantNo;
-                const status = req.body.status;
+        try{
+            console.log(req.body);
+            const ParticipantNo = req.body.ParticipantNo;
+            const status = req.body.status;
 
-                const results = await models.Participant.update({
-                    status: status
-                },{
-                    where: {
-                        no: ParticipantNo
-                    }
+            const results = await models.Participant.update({
+                status: status
+            },{
+                where: {
+                    no: ParticipantNo
+                }
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
                 });
-                res
-                    .status(200)
-                    .send({
-                        result: 'success',
-                        data: results,
-                        message: null
-                    });
-            } catch(err){
-                next(err);
-            }
-        },
+        } catch(err){
+            next(err);
+        }
+    },
     /*
     *  SELECT * FROM Friend A , user B
     *  WHERE 1 = 1
@@ -582,12 +620,12 @@ module.exports = {
             const { file, body: {}} = req;
 
             res
-               .status(200)
-               .send({
-                   result: 'success',
-                   data: file,
-                   message: null
-               });
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: file,
+                    message: null
+                });
         }catch(e){
             next(e);
         }
