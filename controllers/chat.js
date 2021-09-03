@@ -286,11 +286,18 @@ module.exports = {
     },
     send : async(req ,res , next ) => {
         try{
-            const roomNo = req.body.roomNo;
-            const participantNo = req.body.participantNo;
-            const contents = req.body.contents;
-            const type = "TEXT"
-            const notReadCount = req.body.headCount;
+            const { file, body: {roomNo,participantNo,text,headCount:notReadCount}} = req;
+
+            let contents;
+            let type;
+            if(!file){
+                contents = text;
+                type = "TEXT";
+            } else{
+                contents = file.path;
+                type = "IMG"
+            }
+
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
@@ -567,6 +574,21 @@ module.exports = {
                     message: null
                 });
         } catch(e){
+            next(e);
+        }
+    },
+    uploadFile: async(req ,res , next ) => {
+        try{
+            const { file, body: {}} = req;
+
+            res
+               .status(200)
+               .send({
+                   result: 'success',
+                   data: file,
+                   message: null
+               });
+        }catch(e){
             next(e);
         }
     }
