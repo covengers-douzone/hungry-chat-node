@@ -17,7 +17,8 @@ const upload = multer({storage:storage});
 //auth("ROLE_USER"),
 const router = express.Router();
 router.route('/roomlist/:userNo').get( controller.getRoomList);
-router.route('/chatlist/:roomNo').get(controller.getChatList);
+router.route('/chatlist/:roomNo/:offset/:limit').get(controller.getChatList);
+router.route('/chatlistCount/:roomNo/').get(controller.getChatListCount);
 router.route('/getChat/:chatNo').get(controller.getChat);
 //router.route('/message').post(controller.send);
 //router.route('/create').post(controller.create);
