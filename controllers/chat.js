@@ -209,6 +209,9 @@ module.exports = {
             if(!file){
                 contents = text;
                 type = "TEXT";
+            } else{
+                contents = file.path;
+                type = "IMG"
             }
 
             const results = await models.Chat.create({
