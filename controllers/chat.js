@@ -388,7 +388,7 @@ module.exports = {
             const results = await models.Chat.create({
                 roomNo , type , contents , notReadCount , participantNo
             });
-            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${notReadCount}:${results.no}`)
+            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${results.no}:${contents}:${moment().format('h:mm a')}:${notReadCount}`)
             res
                 .status(200)
                 .send({
@@ -687,21 +687,6 @@ module.exports = {
                     message: null
                 });
         } catch(e){
-            next(e);
-        }
-    },
-    uploadFile: async(req ,res , next ) => {
-        try{
-            const { file, body: {}} = req;
-
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: file,
-                    message: null
-                });
-        }catch(e){
             next(e);
         }
     }
