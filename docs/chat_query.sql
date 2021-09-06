@@ -64,7 +64,7 @@ UPDATE chat c
    ;
 
 -- update status
-update participant set status = 0 where no = 1;
+update participant set status = 0 where no = 7;
 
 -- find friend list
 select *

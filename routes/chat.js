@@ -43,4 +43,7 @@ router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), 
 router.route('/getLastReadNo').post(controller.getLastReadNo);
 router.route('/getLastReadNoCount').post(controller.getLastReadNoCount);
 
+// layer 변경
+router.route('/joinRoom').post(auth("ROLE_USER"),controller.joinRoom);
+router.route('/leftRoom').post(controller.leftRoom);
 module.exports = router;

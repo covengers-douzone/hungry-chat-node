@@ -6,9 +6,155 @@ const moment = require('moment');
 const {Op} = require('sequelize');
 const fs = require('fs');
 const {user} = require("../redis-conf");
-const chatService = require('../services/chat');
 
 module.exports = {
+    // layer
+    updateStatus: async(participantNo,status) => {
+        try{
+            const results = await models.Participant.update({
+                status: status
+            },{
+                where: {
+                    no: participantNo
+                }
+            });
+            return results;
+        } catch(err){
+            console.error(err);
+        }
+    },
+    updateRoomNotReadCount: async(participantNo) => {
+        try{
+            const participant = await models.Participant.findOne({
+                where: {
+                    no: participantNo
+                }
+            });
+            const results = await models.Chat.update({
+                notReadCount: models.sequelize.Sequelize.literal('notReadCount - 1')
+            },{
+                where: {
+                    createdAt: {
+                        [Op.gt]: participant.lastReadAt
+                    },
+                    roomNo: participant.roomNo
+                }
+            })
+
+            return results;
+        } catch(e){
+            console.error(e);
+        }
+    },
+    getLastReadNo: async(participantNo) => {
+        try{
+            const participant = await models.Participant.findOne({
+                where:{
+                    no: participantNo
+                }
+            });
+            const results = await models.Chat.max('no',{
+                where:{
+                    roomNo : participant.roomNo,
+                    createdAt: {
+                        [Op.lt]: participant.lastReadAt
+                    }
+                }
+            });
+            return results;
+        } catch(e){
+            console.error(e);
+        }
+    },
+    getLastReadNoCount: async(participantNo) => {
+        try{
+            const participant = await models.Participant.findByPk(participantNo);
+            const results = await models.Chat.findAndCountAll({
+                where:{
+                    roomNo : participant.roomNo,
+                    createdAt: {
+                        [Op.lt]: participant.lastReadAt
+                    }
+                }
+            });
+            return results;
+        } catch(e){
+            console.error(e);
+        }
+    },
+    getHeadCount : async(participantNo) => {
+        try{
+            const results = await models.Room.findOne({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true
+                        , where: {
+                            [`$Participants.no$`]: participantNo
+                        }
+                    }
+                ]
+            });
+            return results.headCount;
+        } catch(e){
+            next(e);
+        }
+    },
+    getChatListCount: async (roomNo) => {
+        try {
+            const results = await models.Chat.findAndCountAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+            });
+            return results;
+        } catch (err) {
+            console.error(err);
+        }
+    },
+    getChatList: async (roomNo,limit,offset) => {
+        try {
+            const results = await models.Chat.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+                limit: Number(limit),
+                offset: Number(offset)
+
+            });
+            return results;
+        } catch (err) {
+            console.error(err);
+        }
+    },
+    updateLastReadAt: async(participantNo) => {
+        try{
+            const results = await models.Participant.update({
+                lastReadAt: new Date().toString()
+            },{
+                where: {
+                    no: participantNo
+                }
+            })
+            return results;
+        } catch(e){
+            console.error(e);
+        }
+    },
+
+
+    // X
     getOpenChatRoomList: async (req,res,next) => {
         try{
             const roomList = (await models.Room.findAll({
@@ -258,76 +404,8 @@ module.exports = {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
-    getChatList: async (req, res, next) => {
-        try {
-            const roomNo = req.params.roomNo;
-            const limit = req.params.limit;
-            const offset = req.params.offset
-            console.log("getChatList", roomNo, limit, offset)
-            const results = await models.Chat.findAll({
-                include: [
-                    {
-                        model: models.Participant, as: 'Participant', required: true
-                        , where: {
-                            [`$Participant.roomNo$`]: roomNo
-                        }
-                    }
-                ],
-                order: [['no', 'ASC']],
-                limit: Number(limit),
-                offset: Number(offset)
 
-            });
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch (err) {
-            res
-                .status(200)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: "System Error"
-                });
-        }
-    },
-    getChatListCount: async (req, res, next) => {
-        try {
-            const roomNo = req.params.roomNo;
 
-            const results = await models.Chat.findAndCountAll({
-                include: [
-                    {
-                        model: models.Participant, as: 'Participant', required: true
-                        , where: {
-                            [`$Participant.roomNo$`]: roomNo
-                        }
-                    }
-                ],
-                order: [['no', 'ASC']],
-
-            });
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch (err) {
-            res
-                .status(200)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: "System Error"
-                });
-        }
-    },
     getChat: async (req,res,next) => {
         try{
             const chatNo = req.params.chatNo;
@@ -349,29 +427,7 @@ module.exports = {
             next(e);
         }
     },
-    getHeadCount : async(req ,res , next ) => {
-        try{
-            const headCount = await models.Room.findOne({
-                include: [
-                    {
-                        model: models.Participant, as: 'Participants', required: true
-                        , where: {
-                            [`$Participants.no$`]: req.body.participantNo
-                        }
-                    }
-                ]
-            });
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: headCount.headCount,
-                    message: null
-                });
-        } catch(e){
-            next(e);
-        }
-    },
+
     send : async(req ,res , next ) => {
         try{
             const { file, body: {roomNo,participantNo,text,headCount:notReadCount}} = req;
@@ -408,38 +464,7 @@ module.exports = {
     //    where p.lastReadAt < c.createdAt
     //    AND p.no = 1
     //    ;
-    updateRoomNotReadCount: async(req ,res , next ) => {
-        try{
-            const participantNo = req.body.participantNo;
 
-            const participant = await models.Participant.findOne({
-                where: {
-                    no: participantNo
-                }
-            });
-            const results = await models.Chat.update({
-                notReadCount: models.sequelize.Sequelize.literal('notReadCount - 1')
-            },{
-                where: {
-                    createdAt: {
-                        [Op.gt]: participant.lastReadAt
-                    },
-                    roomNo: participant.roomNo
-                }
-            })
-
-            console.log(results);
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(e){
-            next(e);
-        }
-    },
     updateSendNotReadCount: async(req ,res , next ) => {
         try{
             const chatNo = req.body.chatNo;
@@ -509,30 +534,7 @@ module.exports = {
             next(err);
         }
     },
-    updateStatus: async(req ,res , next ) => {
-        try{
-            console.log(req.body);
-            const ParticipantNo = req.body.ParticipantNo;
-            const status = req.body.status;
 
-            const results = await models.Participant.update({
-                status: status
-            },{
-                where: {
-                    no: ParticipantNo
-                }
-            });
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(err){
-            next(err);
-        }
-    },
     /*
     *  SELECT * FROM Friend A , user B
     *  WHERE 1 = 1
@@ -593,82 +595,9 @@ module.exports = {
             next(err);
         }
     },
-    updateLastReadAt: async(req ,res , next ) => {
-        try{
-            const participantNo = req.body.participantNo;
-            const results = await models.Participant.update({
-                lastReadAt: new Date().toString()
-            },{
-                where: {
-                    no: participantNo
-                }
-            })
 
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(e){
-            next(e);
-        }
-    },
-    getLastReadNo: async(req ,res , next ) => {
-        try{
-            const participantNo = req.body.participantNo;
-            const participant = await models.Participant.findOne({
-                where:{
-                    no: participantNo
-                }
-            });
-            const results = await models.Chat.max('no',{
-                where:{
-                    roomNo : participant.roomNo,
-                    createdAt: {
-                        [Op.lt]: participant.lastReadAt
-                    }
-                }
-            });
 
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(e){
-            next(e);
-        }
-    },
-    getLastReadNoCount: async(req ,res , next ) => {
 
-        console.log("getLastReadNoCount" , req.body)
-        try{
-            const participantNo = req.body.participantNo;
-            const participant = await models.Participant.findByPk(participantNo);
-            const results = await models.Chat.findAndCountAll({
-                where:{
-                    roomNo : participant.roomNo,
-                    createdAt: {
-                        [Op.lt]: participant.lastReadAt
-                    }
-                }
-            });
-
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(e){
-            next(e);
-        }
-    },
     //update Chat SET notReadCount = 0 where roomNo = 1
     updateChatZero: async(req ,res , next ) => {
         try{
@@ -690,48 +619,5 @@ module.exports = {
         } catch(e){
             next(e);
         }
-    },
-
-
-    // layer 변경
-    joinRoom : async(req ,res , next ) => {
-        try{
-            const results = await chatService.joinRoom(req.body);
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(e){
-            res
-                .status(400)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: e.message
-                });
-        }
-    },
-    leftRoom : async(req ,res , next ) => {
-        try{
-            const results = await chatService.leftRoom(req.body);
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(e){
-            res
-                .status(400)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: e.message
-                });
-        }
-    },
+    }
 }

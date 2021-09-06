@@ -5,6 +5,7 @@ CREATE TABLE ROOM
 (
     `no`         INT                           NOT NULL    AUTO_INCREMENT COMMENT 'no', 
     `title`      VARCHAR(45)                   NOT NULL    COMMENT 'title', 
+    `content`    VARCHAR(100)                  NULL        COMMENT '방 설명', 
     `password`   VARCHAR(45)                   NULL        COMMENT 'password', 
     `type`       ENUM("private","public" )    NOT NULL    COMMENT 'public: 오픈 채팅, private: 개인 채팅', 
     `createdAt`  DATETIME                      NOT NULL    COMMENT 'createdAt', 
