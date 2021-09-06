@@ -42,5 +42,6 @@ router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserBy
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 router.route('/getLastReadNo').post(controller.getLastReadNo);
 router.route('/getLastReadNoCount').post(controller.getLastReadNoCount);
+router.route('/deleteChatNo/:chatNo').post(controller.deleteChatNo);
 
 module.exports = router;

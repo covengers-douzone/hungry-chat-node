@@ -614,6 +614,7 @@ module.exports = {
             next(e);
         }
     },
+    // 마지막 읽은메시지의 No값을 받아온다. Partials - Chat
     getLastReadNo: async(req ,res , next ) => {
         try{
             const participantNo = req.body.participantNo;
@@ -626,7 +627,7 @@ module.exports = {
                 where:{
                     roomNo : participant.roomNo,
                     createdAt: {
-                        [Op.lt]: participant.lastReadAt
+                        [Op.gt]: participant.lastReadAt
                     }
                 }
             });
@@ -642,6 +643,7 @@ module.exports = {
             next(e);
         }
     },
+    // 마지막 읽은메시지 이후의 리스트의 갯수를 출력한다. Partials - Chat
     getLastReadNoCount: async(req ,res , next ) => {
 
         console.log("getLastReadNoCount" , req.body)
@@ -652,7 +654,7 @@ module.exports = {
                 where:{
                     roomNo : participant.roomNo,
                     createdAt: {
-                        [Op.lt]: participant.lastReadAt
+                        [Op.gt]: participant.lastReadAt
                     }
                 }
             });
@@ -689,5 +691,28 @@ module.exports = {
         } catch(e){
             next(e);
         }
-    }
+    },
+    // ChatNo 삭제  Partials - Chat
+    deleteChatNo: async(req ,res , next ) => {
+        try{
+
+            const chatNo = req.params.chatNo;
+            console.log("deleteChatNo",chatNo)
+            const results = await models.Chat.destroy({
+                where:{
+                    no : chatNo,
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
 }
