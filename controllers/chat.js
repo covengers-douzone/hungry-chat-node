@@ -301,7 +301,7 @@ module.exports = {
             const results = await models.Chat.create({
                  roomNo , type , contents , notReadCount , participantNo
             });
-            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${contents}:${moment().format('h:mm a')}:${notReadCount}:${results.no}`)
+            await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${results.no}:${contents}:${moment().format('h:mm a')}:${notReadCount}`)
             res
                 .status(200)
                 .send({
