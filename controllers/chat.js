@@ -103,9 +103,11 @@ module.exports = {
     },
     addFriend: async (req, res) => {
         try{
-            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.
-            // 2. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
-            // 3. response
+            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
+            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
+            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 4. response
+
             const username = req.body.username // 친구의 이메일 계정 정보.
             const userNo = req.body.userNo; // 사용자.
 
@@ -119,15 +121,52 @@ module.exports = {
                 }
             })
 
-            if(result === null){
-                throw new Error('이메일이 일치하지 않습니다. 다시 확인해주세요.');
-            }
+            const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                include: [
+                    {
+                        model: models.Friend, as: 'Friends', required: true
+                        , where: {
+                            [`$Friends.userNo$`]: userNo
+                        }
+                    }
+                ],
+            });
+            if(!result){
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
+                    });
+            } else if(result.no.toString() === userNo){
+                console.log(result.no.toString() === userNo)
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "잘못된 요청입니다. 다시 시도해주세요."
+                    });
+            } else if(results.map((result) => {
+                if(result.username === username){
+                    res
+                        .status(200)
+                        .send({
+                            result: 'fail',
+                            data: null,
+                            message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
+                        });
+                }
+            }))
 
             await models.Friend.create({
                 userNo:userNo,
                 friendNo:result.no
             })
-
             res
                 .status(200)
                 .send({
@@ -135,15 +174,9 @@ module.exports = {
                     data: result,
                     message: null
                 });
+
         }catch (e){
-            console.log(e);
-            res
-                .status(400)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: e.message
-                });
+            console.log(e.message);
         }
     },
     getUserByNo: async (req,res) => {
@@ -541,6 +574,9 @@ module.exports = {
         try{
             const UserNo = req.body.UserNo;
             const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
                 include: [
                     {
                         model: models.Friend, as: 'Friends', required: true
@@ -551,10 +587,10 @@ module.exports = {
                 ],
             });
 
-            for(let i=0; i < results.length; i++){
-                results[i].password = "";
-                results[i].phoneNumber = "";
-            }
+            // for(let i=0; i < results.length; i++){
+            //     results[i].password = "";
+            //     results[i].phoneNumber = "";
+            // }
 
             res
                 .status(200)
