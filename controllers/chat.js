@@ -576,20 +576,5 @@ module.exports = {
         } catch(e){
             next(e);
         }
-    },
-    uploadFile: async(req ,res , next ) => {
-        try{
-            const { file, body: {}} = req;
-
-            res
-               .status(200)
-               .send({
-                   result: 'success',
-                   data: file,
-                   message: null
-               });
-        }catch(e){
-            next(e);
-        }
     }
 }

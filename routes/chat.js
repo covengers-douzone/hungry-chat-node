@@ -38,7 +38,5 @@ router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 router.route('/getLastReadNo').post(controller.getLastReadNo);
-router.route('/uploadFile').post(upload.single( "file"), controller.uploadFile);
-
 
 module.exports = router;
