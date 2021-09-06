@@ -17,7 +17,8 @@ const upload = multer({storage:storage});
 //auth("ROLE_USER"),
 const router = express.Router();
 router.route('/roomlist/:userNo').get( controller.getRoomList);
-router.route('/chatlist/:roomNo').get(controller.getChatList);
+router.route('/chatlist/:roomNo/:offset/:limit').get(controller.getChatList);
+router.route('/chatlistCount/:roomNo/').get(controller.getChatListCount);
 router.route('/getChat/:chatNo').get(controller.getChat);
 //router.route('/message').post(controller.send);
 //router.route('/create').post(controller.create);
@@ -33,10 +34,13 @@ router.route('/updateSendNotReadCount').post(controller.updateSendNotReadCount);
 router.route('/updateRoomNotReadCount').post(controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
+
+router.route('/getOpenChatRoomList').get( controller.getOpenChatRoomList);
 router.route('/getFollowerList').post(auth("ROLE_USER"),controller.getFollowerList);
 router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 router.route('/getLastReadNo').post(controller.getLastReadNo);
+router.route('/getLastReadNoCount').post(controller.getLastReadNoCount);
 
 module.exports = router;
