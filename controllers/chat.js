@@ -593,6 +593,32 @@ module.exports = {
             next(e);
         }
     },
+    getLastReadNoCount: async(req ,res , next ) => {
+
+        console.log("getLastReadNoCount" , req.body)
+        try{
+            const participantNo = req.body.participantNo;
+            const participant = await models.Participant.findByPk(participantNo);
+            const results = await models.Chat.findAndCountAll({
+                where:{
+                    roomNo : participant.roomNo,
+                    createdAt: {
+                        [Op.lt]: participant.lastReadAt
+                    }
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
     //update Chat SET notReadCount = 0 where roomNo = 1
     updateChatZero: async(req ,res , next ) => {
         try{
