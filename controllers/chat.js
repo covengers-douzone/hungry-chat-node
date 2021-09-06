@@ -276,9 +276,6 @@ module.exports = {
                 }
             });
 
-            console.log(results[0].type);
-
-
             res
                 .status(200)
                 .send({
@@ -496,12 +493,13 @@ module.exports = {
     createRoom : async(req ,res , next ) => {
         try{
             const title = req.body.title;
+            const content = req.body.content;
             const headCount = req.body.headCount;
             const type = req.body.type;
             const password = req.body.password;
 
             const results = await models.Room.create({
-                title,password,type,headCount
+                title, content, password,type,headCount
             });
             res
                 .status(200)
