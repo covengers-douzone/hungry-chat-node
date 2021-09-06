@@ -37,7 +37,7 @@ module.exports = {
                 }
             });
 
-            console.log(results[0].Participants);
+            // console.log(results[0].Participants);
             res
                 .status(200)
                 .send({
@@ -242,6 +242,9 @@ module.exports = {
                     }
                 }
             });
+
+            console.log(results[0].type);
+
 
             res
                 .status(200)
