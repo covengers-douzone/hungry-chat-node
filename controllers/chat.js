@@ -8,6 +8,47 @@ const fs = require('fs');
 const {user} = require("../redis-conf");
 
 module.exports = {
+    getOpenChatRoomList: async (req,res,next) => {
+        try{
+            const roomList = (await models.Room.findAll({
+               where:{
+                    type: "public"
+               }
+            })).map(room => {return room.no});
+
+            const results = await models.Room.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true,
+                        include: [
+                            {
+                                model: models.User, required: true
+                                ,attributes: {
+                                    exclude: ['password','phoneNumber','token']
+                                }
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    no:{
+                        [Op.in]: roomList
+                    }
+                }
+            });
+
+            // console.log(results[0].Participants);
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (err){
+            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
+        }
+    },
     getFollowerList: async(req ,res , next ) => {
         try{
             const UserNo = req.body.UserNo;
@@ -35,6 +76,9 @@ module.exports = {
             });
 
             const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
                 where:{
                     no:{
                         [Op.in]: followerList
@@ -42,10 +86,10 @@ module.exports = {
                 }
             });
 
-            for(let i=0; i < results.length; i++){
-                results[i].password = "";
-                results[i].phoneNumber = "";
-            }
+            // for(let i=0; i < results.length; i++){
+            //     results[i].password = "";
+            //     results[i].phoneNumber = "";
+            // }
             res
                 .status(200)
                 .send({
@@ -67,6 +111,9 @@ module.exports = {
 
             // (1) 이메일 정보로 친구 정보 가져오기
             const result = await models.User.findOne({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
                 where: {
                     username: username
                 }
@@ -75,10 +122,6 @@ module.exports = {
             if(result === null){
                 throw new Error('이메일이 일치하지 않습니다. 다시 확인해주세요.');
             }
-
-            result.password="";
-            result.phoneNumber="";
-            result.token="";
 
             await models.Friend.create({
                 userNo:userNo,
@@ -104,15 +147,15 @@ module.exports = {
         }
     },
     getUserByNo: async (req,res) => {
-        try{
-            const result = await models.User.findOne({
-                where: {
-                    no: req.params.userNo
-                }
-            })
-            result.password = "";
-            result.phoneNumber = "";
-            result.token="";
+            try{
+                const result = await models.User.findOne({
+                    attributes: {
+                        exclude: ['password','phoneNumber','token']
+                    },
+                    where: {
+                        no: req.params.userNo
+                    }
+                })
             res
                 .status(200)
                 .send({
@@ -130,6 +173,9 @@ module.exports = {
             let fileUrl;
 
             const result = await models.User.findOne({
+                attributes: {
+                    exclude: ['phoneNumber','token']
+                },
                 where: {
                     no: userNo
                 }
@@ -196,6 +242,9 @@ module.exports = {
                     }
                 }
             });
+
+            console.log(results[0].type);
+
 
             res
                 .status(200)

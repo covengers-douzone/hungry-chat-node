@@ -34,6 +34,8 @@ router.route('/updateSendNotReadCount').post(controller.updateSendNotReadCount);
 router.route('/updateRoomNotReadCount').post(controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
+
+router.route('/getOpenChatRoomList').get( controller.getOpenChatRoomList);
 router.route('/getFollowerList').post(auth("ROLE_USER"),controller.getFollowerList);
 router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
