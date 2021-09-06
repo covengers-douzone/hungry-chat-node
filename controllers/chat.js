@@ -104,9 +104,11 @@ module.exports = {
     },
     addFriend: async (req, res) => {
         try{
-            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.
-            // 2. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
-            // 3. response
+            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
+            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
+            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 4. response
+
             const username = req.body.username // 친구의 이메일 계정 정보.
             const userNo = req.body.userNo; // 사용자.
 
@@ -120,15 +122,52 @@ module.exports = {
                 }
             })
 
-            if(result === null){
-                throw new Error('이메일이 일치하지 않습니다. 다시 확인해주세요.');
-            }
+            const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                include: [
+                    {
+                        model: models.Friend, as: 'Friends', required: true
+                        , where: {
+                            [`$Friends.userNo$`]: userNo
+                        }
+                    }
+                ],
+            });
+            if(!result){
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
+                    });
+            } else if(result.no.toString() === userNo){
+                console.log(result.no.toString() === userNo)
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "잘못된 요청입니다. 다시 시도해주세요."
+                    });
+            } else if(results.map((result) => {
+                if(result.username === username){
+                    res
+                        .status(200)
+                        .send({
+                            result: 'fail',
+                            data: null,
+                            message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
+                        });
+                }
+            }))
 
             await models.Friend.create({
                 userNo:userNo,
                 friendNo:result.no
             })
-
             res
                 .status(200)
                 .send({
@@ -136,15 +175,9 @@ module.exports = {
                     data: result,
                     message: null
                 });
+
         }catch (e){
-            console.log(e);
-            res
-                .status(400)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: e.message
-                });
+            console.log(e.message);
         }
     },
     getUserByNo: async (req,res) => {
@@ -243,9 +276,6 @@ module.exports = {
                     }
                 }
             });
-
-            console.log(results[0].type);
-
 
             res
                 .status(200)
@@ -464,12 +494,13 @@ module.exports = {
     createRoom : async(req ,res , next ) => {
         try{
             const title = req.body.title;
+            const content = req.body.content;
             const headCount = req.body.headCount;
             const type = req.body.type;
             const password = req.body.password;
 
             const results = await models.Room.create({
-                title,password,type,headCount
+                title, content, password,type,headCount
             });
             res
                 .status(200)
@@ -542,6 +573,9 @@ module.exports = {
         try{
             const UserNo = req.body.UserNo;
             const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
                 include: [
                     {
                         model: models.Friend, as: 'Friends', required: true
@@ -552,10 +586,10 @@ module.exports = {
                 ],
             });
 
-            for(let i=0; i < results.length; i++){
-                results[i].password = "";
-                results[i].phoneNumber = "";
-            }
+            // for(let i=0; i < results.length; i++){
+            //     results[i].password = "";
+            //     results[i].phoneNumber = "";
+            // }
 
             res
                 .status(200)
@@ -615,6 +649,7 @@ module.exports = {
             next(e);
         }
     },
+    // 마지막 읽은메시지의 No값을 받아온다. Partials - Chat
     getLastReadNo: async(req ,res , next ) => {
         try{
             const participantNo = req.body.participantNo;
@@ -627,7 +662,7 @@ module.exports = {
                 where:{
                     roomNo : participant.roomNo,
                     createdAt: {
-                        [Op.lt]: participant.lastReadAt
+                        [Op.gt]: participant.lastReadAt
                     }
                 }
             });
@@ -643,6 +678,7 @@ module.exports = {
             next(e);
         }
     },
+    // 마지막 읽은메시지 이후의 리스트의 갯수를 출력한다. Partials - Chat
     getLastReadNoCount: async(req ,res , next ) => {
 
         console.log("getLastReadNoCount" , req.body)
@@ -653,7 +689,7 @@ module.exports = {
                 where:{
                     roomNo : participant.roomNo,
                     createdAt: {
-                        [Op.lt]: participant.lastReadAt
+                        [Op.gt]: participant.lastReadAt
                     }
                 }
             });
@@ -691,12 +727,34 @@ module.exports = {
             next(e);
         }
     },
+    // ChatNo 삭제  Partials - Chat
+    deleteChatNo: async(req ,res , next ) => {
+        try {
 
+            const chatNo = req.params.chatNo;
+            console.log("deleteChatNo", chatNo)
+            const results = await models.Chat.destroy({
+                where: {
+                    no: chatNo,
+                }
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (e) {
+            next(e);
+        }
+    },
 
     // layer 변경
     joinRoom : async(req ,res , next ) => {
         try{
             const results = await chatService.joinRoom(req.body);
+
             res
                 .status(200)
                 .send({

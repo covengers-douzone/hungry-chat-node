@@ -17,7 +17,7 @@ module.exports = {
         // get lastReadNo
         const lastReadNo = await chatRepository.getLastReadNo(participantNo);
         // get lastReadNoCount
-        const lastReadNoCount = (await chatRepository.getLastReadNoCount(participantNo)).count;
+        const lastReadNoCount = await chatRepository.getLastReadNoCount(participantNo);
         // get headCount
         const headCount = await chatRepository.getHeadCount(participantNo);
         // get chatlist count, set last page
