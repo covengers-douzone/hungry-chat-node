@@ -44,4 +44,7 @@ router.route('/getLastReadNo').post(controller.getLastReadNo);
 router.route('/getLastReadNoCount').post(controller.getLastReadNoCount);
 router.route('/deleteChatNo/:chatNo').post(controller.deleteChatNo);
 
+// layer 변경
+router.route('/joinRoom').post(auth("ROLE_USER"),controller.joinRoom);
+router.route('/leftRoom').post(controller.leftRoom);
 module.exports = router;

@@ -10,7 +10,6 @@
         const {userJoin, getCurrentUser, userLeave, getRoomUsers} = require('./utils/users.js');
 
 
-
         const corsOptions = {
             origin: true,
             credentials: true,
@@ -94,10 +93,8 @@
         const subClients = [];
 
         io.on('connection', socket => {
-            socket.on('join',({nickName,roomNo},callback)=>{
-                console.log(nickName,roomNo)
-                const user = userJoin(socket.id,nickName,roomNo);
-                console.log(user);
+            socket.on('join',({nickName,roomNo,participantNo},callback)=>{
+                const user = userJoin(socket.id,nickName,roomNo,participantNo);
 
                 // sub
                 const subClient = {
@@ -126,9 +123,15 @@
                 })
             });
             // Runs when client disconnects
-           socket.on('disconnect',()=> {
+           socket.on('disconnect',async ()=> {
                const user = userLeave(socket.id);
                if (user) {
+                   // 강제로 종료 시킨 경우 대비
+                   const chatService = require('./services/chat');
+                   await chatService.leftRoom({
+                       participantNo: user.participantNo
+                   });
+
                    // 나간 사람은 user 목록에서 지움
                    io.to(user.room).emit('roomUsers', {
                        room: user.room,
