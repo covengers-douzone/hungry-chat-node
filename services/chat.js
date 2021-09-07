@@ -1,6 +1,8 @@
 const chatRepository = require('../repository/chat');
 
 module.exports = {
+
+
     joinRoom: async (params) => {
         // variables
         const participantNo = params.participantNo;
@@ -25,7 +27,7 @@ module.exports = {
         if(chatListCount.count < process.env.CHAT_LIMIT || chatListCount >= 0){
             lastPage = 0;
         }else{
-            lastPage = chatListCount.count - process.env.CHAT_LIMIT
+            lastPage = chaztListCount.count - process.env.CHAT_LIMIT
         }
 
         //get chatlist
