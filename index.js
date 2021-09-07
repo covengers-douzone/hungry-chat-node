@@ -81,7 +81,7 @@
 
             require('elastic-apm-node').start({
                 // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-                appName: 'bc-platform-rest',
+                appName: 'redis-03',
                 // Use if APM Server requires a token
                 secretToken: '',
                 // Set custom APM Server URL (default: http://localhost:8200)
