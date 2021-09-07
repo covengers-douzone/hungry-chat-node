@@ -34,12 +34,17 @@ router.route('/updateSendNotReadCount').post(controller.updateSendNotReadCount);
 router.route('/updateRoomNotReadCount').post(controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
+
+router.route('/getOpenChatRoomList').get( controller.getOpenChatRoomList);
 router.route('/getFollowerList').post(auth("ROLE_USER"),controller.getFollowerList);
 router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 router.route('/getLastReadNo').post(controller.getLastReadNo);
-router.route('/uploadFile').post(upload.single( "file"), controller.uploadFile);
+router.route('/getLastReadNoCount').post(controller.getLastReadNoCount);
+router.route('/deleteChatNo/:chatNo').post(controller.deleteChatNo);
 
-
+// layer 변경
+router.route('/joinRoom').post(auth("ROLE_USER"),controller.joinRoom);
+router.route('/leftRoom').post(controller.leftRoom);
 module.exports = router;
