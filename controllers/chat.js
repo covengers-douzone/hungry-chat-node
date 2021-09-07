@@ -660,6 +660,9 @@ module.exports = {
     },
     updateLastReadAt: async(req ,res , next ) => {
         try{
+
+            updateLastReadAt.service(req,body,parmeter, count , gjgopf);
+
             const participantNo = req.body.participantNo;
             const results = await models.Participant.update({
                 lastReadAt: new Date().toString()
@@ -761,9 +764,7 @@ module.exports = {
     // ChatNo 삭제  Partials - Chat
     deleteChatNo: async(req ,res , next ) => {
         try {
-
             const chatNo = req.params.chatNo;
-            console.log("deleteChatNo", chatNo)
             const results = await models.Chat.destroy({
                 where: {
                     no: chatNo,
