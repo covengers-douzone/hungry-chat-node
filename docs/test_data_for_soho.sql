@@ -1,5 +1,6 @@
 -- user
 select * from user;
+insert into user values(-1,'unknown','unknown','01011111111','1111',0,"http://simpleicon.com/wp-content/uploads/account.png","http://simpleicon.com/wp-content/uploads/account.png",'ROLE_USER','token1111',now(),now(),'unknown','unknown');
 -- insert into user values(null,'MirabelleTow@gmail.com','Mirabelle Tow','01011111111','1111',0,'/image','/image','ROLE_USER','token1111',now(),now(),'Mirabelle Tow');
 -- insert into user values(null,'TownsendSeary@gmail.com','Townsend Seary','01022222222','1111',0,'/image','/image','ROLE_USER','token1111',now(),now(),'Townsend Seary');
 
