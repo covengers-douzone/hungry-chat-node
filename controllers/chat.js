@@ -7,8 +7,52 @@ const {Op} = require('sequelize');
 const fs = require('fs');
 const {user} = require("../redis-conf");
 const chatService = require('../services/chat');
+const {sequelize} = require("../models");
 
 module.exports = {
+    deleteChat: async (req,res,next) => {
+        try{
+            if(req.body.openChatHostCheck){
+                    await models.Chat.destroy({
+                        where:{
+                            roomNo: req.body.roomNo
+                        }
+                    })
+                    await models.Participant.destroy({
+                        where:{
+                            roomNo:req.body.roomNo
+                        }
+                    })
+                    await models.Room.destroy({
+                        where:{
+                            no:req.body.roomNo
+                        }
+                    })
+                    res
+                        .status(200)
+                        .send({
+                            result: 'success',
+                            data: null,
+                            message: null
+                        });
+            } else {
+                await models.Participant.update({userNo:1},{
+                    where:{
+                        no:req.body.participantNo
+                    }
+                })
+            }
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: null,
+                    message: null
+                });
+        } catch (err){
+            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
+        }
+    },
     getOpenChatRoomList: async (req,res,next) => {
         try{
             const roomList = (await models.Room.findAll({
@@ -47,7 +91,7 @@ module.exports = {
                     message: null
                 });
         } catch (err){
-            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
+            console.error(`Fetch-Api : getOpenChatRoomList Error : ${err.status} ${err.message}`);
         }
     },
     getFollowerList: async(req ,res , next ) => {
@@ -99,7 +143,14 @@ module.exports = {
                     message: null
                 });
         } catch(err){
-            next(err);
+            // next(err);
+            res
+                .status(500)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: "getFollowerList Error occurred"
+                });
         }
     },
     addFriend: async (req, res) => {
