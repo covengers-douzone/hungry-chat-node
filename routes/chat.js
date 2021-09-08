@@ -36,10 +36,10 @@ router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
 
 
-router.route('/deleteChat').post(controller.deleteChat);
-router.route('/getFriendList').post(controller.getFriendList);
+router.route('/deleteChat').post(auth("ROLE_USER"), controller.deleteChat);
+router.route('/getFriendList').post(auth("ROLE_USER"),controller.getFriendList);
 router.route('/getFollowerList').post(auth("ROLE_USER"),controller.getFollowerList);
-router.route('/getOpenChatRoomList').get( controller.getOpenChatRoomList);
+router.route('/getOpenChatRoomList').get(auth("ROLE_USER"), controller.getOpenChatRoomList);
 router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
