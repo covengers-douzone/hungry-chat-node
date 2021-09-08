@@ -318,6 +318,46 @@ module.exports = {
         }
     },
 
+    deleteUserInfo: async (req,res) => {
+        try{
+            const userNo = req.body.data.userNo; // 사용자.
+            const isDeleted = req.body.data.isDeleted; // 삭제 상태값.
+            
+            console.log("idDeleted:       " , isDeleted);
+            console.log("userNo:       " , userNo);
+
+            const result = await models.User.findOne({
+                attributes: {
+                    exclude: ['phoneNumber','token']
+                },
+                where: {
+                    no: userNo
+                }
+            })
+
+            //password = (password === "null" ? result.password : password);
+           
+            await models.User.update({
+                isDeleted : isDeleted
+            },{
+                where:{
+                    no:userNo
+                }
+            })
+
+            console.log("profile delete All");
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    message: null
+                });
+        } catch (err){
+            console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
+        }
+    },
+
     getRoomList: async (req,res,next) => {
         try{
             const userNo = req.params.userNo;
