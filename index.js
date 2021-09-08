@@ -124,7 +124,6 @@
                 })
             });
             socket.on("deleteMessage"  ,({roomNo , chatNo} , callback) => {
-                console.log("deleteMessage" ,roomNo ,chatNo )
                 io.to(roomNo).emit('deleteMessage',{
                     chatNo : chatNo,
                     room: roomNo,
@@ -156,7 +155,6 @@
                    const subClient = subClients.filter((subClient) => {
                        return (subClient['socketid'] === socket.id)
                    });
-                   console.log(subClient);
                    if(subClient && Array.isArray(subClient) && subClient[0]){
                        subClient[0]['subClient'].unsubscribe();
                        subClient[0]['subClient'].quit();
