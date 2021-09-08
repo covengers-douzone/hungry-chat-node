@@ -96,12 +96,12 @@ module.exports = {
     },
     getFollowerList: async(req ,res , next ) => {
         try{
-            const UserNo = req.body.UserNo;
+            const userNo = req.body.userNo;
             let followerList = [];
             // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
             const lists = (await models.Friend.findAll({
                 where: {
-                    friendNo : UserNo
+                    friendNo : userNo
                 }
             })).map(list => list.userNo);
 
@@ -109,7 +109,7 @@ module.exports = {
             // 내가 친구추가한 사람들
             const friendList = (await models.Friend.findAll({
                 where: {
-                    userNo : UserNo
+                    userNo : userNo
                 }
             })).map( friend => friend.friendNo );
 
@@ -131,7 +131,7 @@ module.exports = {
                 }
             });
 
-            // for(let i=0; i < results.length; i++){
+            // for(let i=0; i < results.lengetFollowerListth; i++){
             //     results[i].password = "";
             //     results[i].phoneNumber = "";
             // }
@@ -231,6 +231,36 @@ module.exports = {
             console.log(e.message);
         }
     },
+    deleteFriend: async(req, res) => {
+        try{
+            // 1. 받아온 FriendNO 로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
+            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
+            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 4. response
+            const friendNo = req.body.friendNo // 친구의 이메일 계정 정보.
+            console.log("friendNo:  ",friendNo);
+            const userNo = req.body.userNo; // 사용자.
+            console.log("userNo:  ", userNo);
+
+            const results = await models.Friend.destroy({
+                where: 
+                {
+                userNo:userNo,
+                friendNo: friendNo
+                }
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        }catch (e){
+            console.log(e.message);
+        }
+    }
+    ,
     getUserByNo: async (req,res) => {
             try{
                 const result = await models.User.findOne({
@@ -292,6 +322,7 @@ module.exports = {
             console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
         }
     },
+
     getRoomList: async (req,res,next) => {
         try{
             const userNo = req.params.userNo;
@@ -570,7 +601,7 @@ module.exports = {
             const status = 0;
             const lastReadAt = new Date().toString();
             const roomNo = req.body.roomNo;
-            const userNo = req.body.UserNo;
+            const userNo = req.body.userNo;
             const nickName = (await models.User.findOne({
                 where: {
                     no: userNo
@@ -622,7 +653,7 @@ module.exports = {
     * */
     getFriendList: async(req ,res , next ) => {
         try{
-            const UserNo = req.body.UserNo;
+            const userNo = req.body.userNo;
             const results = await models.User.findAll({
                 attributes: {
                     exclude: ['password','phoneNumber','token']
@@ -631,7 +662,7 @@ module.exports = {
                     {
                         model: models.Friend, as: 'Friends', required: true
                         , where: {
-                            [`$Friends.userNo$`]: UserNo
+                            [`$Friends.userNo$`]: userNo
                         }
                     }
                 ],
@@ -680,6 +711,9 @@ module.exports = {
     },
     updateLastReadAt: async(req ,res , next ) => {
         try{
+
+            updateLastReadAt.service(req,body,parmeter, count , gjgopf);
+
             const participantNo = req.body.participantNo;
             const results = await models.Participant.update({
                 lastReadAt: new Date().toString()
@@ -781,9 +815,7 @@ module.exports = {
     // ChatNo 삭제  Partials - Chat
     deleteChatNo: async(req ,res , next ) => {
         try {
-
             const chatNo = req.params.chatNo;
-            console.log("deleteChatNo", chatNo)
             const results = await models.Chat.destroy({
                 where: {
                     no: chatNo,

@@ -80,7 +80,7 @@
 
             require('elastic-apm-node').start({
                 // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-                appName: 'bc-platform-rest',
+                appName: 'redis-03',
                 // Use if APM Server requires a token
                 secretToken: '',
                 // Set custom APM Server URL (default: http://localhost:8200)
@@ -90,12 +90,13 @@
         const io = socketio(server);
         //let subList = []
         let info = {}
+        let roomNoTest
         const subClients = [];
 
         io.on('connection', socket => {
             socket.on('join',({nickName,roomNo,participantNo},callback)=>{
                 const user = userJoin(socket.id,nickName,roomNo,participantNo);
-
+                roomNoTest = roomNo
                 // sub
                 const subClient = {
                     socketid: socket.id,
@@ -122,6 +123,19 @@
                     users: getRoomUsers(user.room)
                 })
             });
+            socket.on("deleteMessage"  ,({roomNo , chatNo} , callback) => {
+                console.log("deleteMessage" ,roomNo ,chatNo )
+                io.to(roomNo).emit('deleteMessage',{
+                    chatNo : chatNo,
+                    room: roomNo,
+                    users: getRoomUsers(roomNo)
+                })
+                callback({
+                    status: 'ok'
+                })
+
+            })
+
             // Runs when client disconnects
            socket.on('disconnect',async ()=> {
                const user = userLeave(socket.id);

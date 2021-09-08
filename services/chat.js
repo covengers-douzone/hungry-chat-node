@@ -1,6 +1,8 @@
 const chatRepository = require('../repository/chat');
 
 module.exports = {
+
+
     joinRoom: async (params) => {
         // variables
         const participantNo = params.participantNo;
@@ -21,14 +23,17 @@ module.exports = {
         // get headCount
         const headCount = await chatRepository.getHeadCount(participantNo);
         // get chatlist count, set last page
+        //쳇 리스트 갯수 구하기
         const chatListCount = await chatRepository.getChatListCount(roomNo);
+        // lastPage가 -로 들어 갈때 처리 해주는 조건문
         if(chatListCount.count < process.env.CHAT_LIMIT || chatListCount >= 0){
             lastPage = 0;
         }else{
-            lastPage = chatListCount.count - process.env.CHAT_LIMIT
+            lastPage = chaztListCount.count - process.env.CHAT_LIMIT
         }
 
         //get chatlist
+        //  마지막 읽은 메세지가 존재 한다면  그 메시지 위치까지 페이징 시킨다 , 없다면  5개의 마지막 메시지만 보이게 한다.
         if (lastReadNoCount && lastReadNoCount.count !== 0) {
             // console.log("chatListCount.count", chatListCount.count)
             // console.log("lastReadNoCount.count", lastReadNoCount.count)

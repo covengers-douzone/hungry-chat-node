@@ -40,7 +40,9 @@ router.route('/deleteChat').post(auth("ROLE_USER"), controller.deleteChat);
 router.route('/getFriendList').post(auth("ROLE_USER"),controller.getFriendList);
 router.route('/getFollowerList').post(auth("ROLE_USER"),controller.getFollowerList);
 router.route('/getOpenChatRoomList').get(auth("ROLE_USER"), controller.getOpenChatRoomList);
+
 router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
+router.route('/deleteFriend').post(auth("ROLE_USER"), controller.deleteFriend);
 router.route('/getUserByNo/:userNo').get(auth("ROLE_USER"), controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"), auth("ROLE_USER"), controller.updateSettings);
 router.route('/getLastReadNo').post(controller.getLastReadNo);
