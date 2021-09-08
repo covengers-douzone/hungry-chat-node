@@ -23,7 +23,6 @@ router.route('/getChat/:chatNo').get(controller.getChat);
 //router.route('/message').post(controller.send);
 //router.route('/create').post(controller.create);
 //router.route('/setStatus').post(controller.updateStatus);
-router.route('/getFriendList').post(controller.getFriendList);
 router.route('/chatlist/:roomNo').get( controller.getChatList);
 router.route('/message').post(upload.single( "file"), controller.send);
 router.route('/createRoom').post( controller.createRoom);
@@ -35,8 +34,12 @@ router.route('/updateRoomNotReadCount').post(controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(controller.updateLastReadAt);
 
 
-router.route('/getOpenChatRoomList').get( controller.getOpenChatRoomList);
+
+
+router.route('/deleteChat').post(auth("ROLE_USER"), controller.deleteChat);
+router.route('/getFriendList').post(auth("ROLE_USER"),controller.getFriendList);
 router.route('/getFollowerList').post(auth("ROLE_USER"),controller.getFollowerList);
+router.route('/getOpenChatRoomList').get(auth("ROLE_USER"), controller.getOpenChatRoomList);
 
 router.route('/addFriend').post(auth("ROLE_USER"), controller.addFriend);
 router.route('/deleteFriend').post(auth("ROLE_USER"), controller.deleteFriend);
