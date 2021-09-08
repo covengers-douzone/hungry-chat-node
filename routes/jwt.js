@@ -11,7 +11,7 @@ module.exports = {
 
         } catch (err) {
             if (err.message === 'jwt expired') {
-
+                console.log('expired token');
                 res.status(403).send({
                     result: "fail",
                     data: null,
@@ -20,6 +20,7 @@ module.exports = {
 
                 // return TOKEN_EXPIRED;
             }  else {
+                console.log("invalid token");
                 res.status(400).send({
                     result: "fail",
                     data: null,
