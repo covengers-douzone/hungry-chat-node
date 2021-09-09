@@ -26,7 +26,7 @@ module.exports = function(sequelize){
         },
         type: {
             field: 'type',
-            type: DataTypes.ENUM('private', 'public'),
+            type: DataTypes.ENUM('private', 'public' , 'official'),
             allowNull: false
         },
         createdAt: {

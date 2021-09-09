@@ -53,11 +53,13 @@ module.exports = {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
+    // OpenChat 리스트를 보여준다.
     getOpenChatRoomList: async (req,res,next) => {
         try{
+            const type = req.body.type
             const roomList = (await models.Room.findAll({
                where:{
-                    type: "public"
+                    type: type
                }
             })).map(room => {return room.no});
 
@@ -358,6 +360,7 @@ module.exports = {
         }
     },
 
+    // 유저가 속한 리스트 목록을 보여준다
     getRoomList: async (req,res,next) => {
         try{
             const userNo = req.params.userNo;
