@@ -82,7 +82,6 @@ module.exports = {
                 }
             });
 
-            // console.log(results[0].Participants);
             res
                 .status(200)
                 .send({
@@ -195,7 +194,6 @@ module.exports = {
                         message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
                     });
             } else if(result.no.toString() === userNo){
-                console.log(result.no.toString() === userNo)
                 res
                     .status(200)
                     .send({
@@ -238,9 +236,7 @@ module.exports = {
             // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
             // 4. response
             const friendNo = req.body.friendNo // 친구의 이메일 계정 정보.
-            console.log("friendNo:  ",friendNo);
             const userNo = req.body.userNo; // 사용자.
-            console.log("userNo:  ", userNo);
 
             const results = await models.Friend.destroy({
                 where: 
@@ -309,13 +305,52 @@ module.exports = {
                     no:userNo
                 }
             })
-            console.log("profile update All");
 
             res
                 .status(200)
                 .send({
                     result: 'success',
                     data: fileUrl,
+                    message: null
+                });
+        } catch (err){
+            console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
+        }
+    },
+
+    deleteUserInfo: async (req,res) => {
+        try{
+            const userNo = req.body.data.userNo; // 사용자.
+            const isDeleted = req.body.data.isDeleted; // 삭제 상태값.
+            
+            console.log("idDeleted:       " , isDeleted);
+            console.log("userNo:       " , userNo);
+
+            const result = await models.User.findOne({
+                attributes: {
+                    exclude: ['phoneNumber','token']
+                },
+                where: {
+                    no: userNo
+                }
+            })
+
+            //password = (password === "null" ? result.password : password);
+           
+            await models.User.update({
+                isDeleted : isDeleted
+            },{
+                where:{
+                    no:userNo
+                }
+            })
+
+            console.log("profile delete All");
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
                     message: null
                 });
         } catch (err){
@@ -375,7 +410,6 @@ module.exports = {
             const roomNo = req.params.roomNo;
             const limit = req.params.limit;
             const offset = req.params.offset
-            console.log("getChatList", roomNo, limit, offset)
             const results = await models.Chat.findAll({
                 include: [
                     {
@@ -539,8 +573,6 @@ module.exports = {
                     roomNo: participant.roomNo
                 }
             })
-
-            console.log(results);
             res
                 .status(200)
                 .send({
@@ -624,7 +656,6 @@ module.exports = {
     },
     updateStatus: async(req ,res , next ) => {
         try{
-            console.log(req.body);
             const ParticipantNo = req.body.ParticipantNo;
             const status = req.body.status;
 
@@ -693,7 +724,6 @@ module.exports = {
     * */
     getLastReadAt: async(req ,res , next ) => { // 마지막 읽은 시각을 찾는다
         try{
-            console.log(req.body);
             const ParticipantNo = req.body.ParticipantNo;
 
             const results = await models.Chat.findOne({
@@ -765,8 +795,6 @@ module.exports = {
     },
     // 마지막 읽은메시지 이후의 리스트의 갯수를 출력한다. Partials - Chat
     getLastReadNoCount: async(req ,res , next ) => {
-
-        console.log("getLastReadNoCount" , req.body)
         try{
             const participantNo = req.body.participantNo;
             const participant = await models.Participant.findByPk(participantNo);
