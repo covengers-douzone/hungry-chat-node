@@ -341,8 +341,6 @@ module.exports = {
                     no:userNo
                 }
             })
-            console.log("profile update All");
-
             res
                 .status(200)
                 .send({
@@ -579,7 +577,6 @@ module.exports = {
     * */
     getLastReadAt: async(req ,res , next ) => { // 마지막 읽은 시각을 찾는다
         try{
-            console.log(req.body);
             const ParticipantNo = req.body.ParticipantNo;
 
             const results = await models.Chat.findOne({

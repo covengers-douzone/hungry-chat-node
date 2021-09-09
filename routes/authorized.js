@@ -6,8 +6,8 @@ const TOKEN_INVALID = -2;
 module.exports = function(role) {
     return async function(req, res, next) {
         console.log("-------------------------------------------AUTH-------------------------------------------")
-        let splitToken=req.headers.authorization === undefined ? req.body.Authorization.split(' ') : req.headers.authorization.split(' ');
-
+        console.log(req.body.data);
+        let splitToken=req.headers.authorization === undefined ? (req.body.Authorization === undefined ? req.body.data.Authorization.split(' ') : req.body.Authorization.split(' '))  : req.headers.authorization.split(' ');
         let token = splitToken[1];
         // 1. Token에 대한 검사 진행
         // 2. DB 정보 비교
