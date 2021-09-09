@@ -3,13 +3,13 @@
 -- ROOM Table Create SQL
 CREATE TABLE ROOM
 (
-    `no`         INT                           NOT NULL    AUTO_INCREMENT COMMENT 'no', 
-    `title`      VARCHAR(45)                   NOT NULL    COMMENT 'title', 
-    `content`    VARCHAR(100)                  NULL        COMMENT '방 설명', 
-    `password`   VARCHAR(45)                   NULL        COMMENT 'password', 
-    `type`       ENUM("private","public" )    NOT NULL    COMMENT 'public: 오픈 채팅, private: 개인 채팅', 
-    `createdAt`  DATETIME                      NOT NULL    COMMENT 'createdAt', 
-    `headCount`  INT                           NOT NULL    DEFAULT 1 COMMENT '방 인원 수', 
+    `no`         INT                                      NOT NULL    AUTO_INCREMENT COMMENT 'no', 
+    `title`      VARCHAR(45)                              NOT NULL    COMMENT 'title', 
+    `content`    VARCHAR(100)                             NULL        COMMENT '방 설명', 
+    `password`   VARCHAR(45)                              NULL        COMMENT 'password', 
+    `type`       ENUM("private","public","official" )    NOT NULL    COMMENT 'public: 오픈 채팅, private: 개인 채팅', 
+    `createdAt`  DATETIME                                 NOT NULL    COMMENT 'createdAt', 
+    `headCount`  INT                                      NOT NULL    DEFAULT 1 COMMENT '방 인원 수', 
     CONSTRAINT PK_ROOM PRIMARY KEY (no)
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE USER
     `createdAt`           DATETIME                                         NOT NULL    DEFAULT now() COMMENT 'createdAt', 
     `lastLoginAt`         DATETIME                                         NULL        DEFAULT now() on update now() COMMENT '마지막 로긴 시간', 
     `nickname`            VARCHAR(45)                                      NULL        COMMENT 'default=>user의 name', 
-    `comments`            TEXT                                             NOT NULL    DEFAULT ('covengers') COMMENT 'comments', 
+    `comments`            TEXT                                             NOT NULL    COMMENT 'default = ''covengers''', 
     CONSTRAINT PK_USER PRIMARY KEY (no)
 );
 
