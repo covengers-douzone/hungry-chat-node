@@ -261,7 +261,7 @@ module.exports = {
             try{
                 const result = await models.User.findOne({
                     attributes: {
-                        exclude: ['password','phoneNumber','token']
+                        exclude: ['password','token']
                     },
                     where: {
                         no: req.params.userNo
