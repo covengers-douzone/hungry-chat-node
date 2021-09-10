@@ -58,14 +58,16 @@ module.exports = {
                         userNo:userNo,
                         friendNo: friendNo
                     }
-            })
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
+                })
+                res
+                    .status(200)
+                    .send({
+                        result: 'success',
+                        data: results,
+                        message: null
+                    });
+
+
         }catch (e){
             console.log(e.message);
         }
@@ -99,7 +101,6 @@ module.exports = {
                         model: models.Friend, as: 'Friends', required: true
                         , where: {
                             [`$Friends.userNo$`]: userNo,
-                            [`$Friends.friendNo`]: result.no
                         }
                     }
                 ],
@@ -114,7 +115,7 @@ module.exports = {
                         data: null,
                         message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
                     });
-            } else if (result.no.toString() === userNo) {
+            } else if (result.no.toString() ===  userNo.toString()) {
                 res
                     .status(200)
                     .send({
@@ -122,27 +123,29 @@ module.exports = {
                         data: null,
                         message: "잘못된 요청입니다. 다시 시도해주세요."
                     });
-            } else if (results) {
+            }else if(results.map((result) => {
+                if(result.username === username){
+                    res
+                        .status(200)
+                        .send({
+                            result: 'fail',
+                            data: null,
+                            message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
+                        });
+                }
+            }))
+
+                await models.Friend.create({
+                    userNo: userNo,
+                    friendNo: result.no
+                })
                 res
                     .status(200)
                     .send({
-                        result: 'fail',
-                        data: null,
-                        message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
+                        result: 'success',
+                        data: result,
+                        message: null
                     });
-            }
-                await models.Friend.create({
-                    userNo:userNo,
-                    friendNo:result.no
-                })
-
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: result,
-                    message: null
-                });
 
         }catch (e){
             console.log(e.message);
@@ -151,51 +154,33 @@ module.exports = {
     getFollowerList: async(req ,res , next ) => {
         try{
             const userNo = req.body.userNo;
+            let friendList = [];
             let followerList = [];
 
-            // 내가 친구추가한 목록
-            const friends = await models.Friend.findAll({
+
+            // 내가 친구 추가
+            const friends = (await models.Friend.findAll({
                 where:{
                     userNo:userNo
                 }
-            }).map(list => list.userNo);
+            })).map(friend => friendList.push(friend.friendNo));
+
 
             // 나를 친구추가한 전체( 팔로워, 친구 통합 )
-            const friendsAndFollowers = await models.Friend.findAll({
+            const friendsAndFollowers = (await models.Friend.findAll({
                 where:{
                     friendNo:userNo
                 }
-            }).map(friendsAndFollower => friendsAndFollower.friendNo)
+            })).map(friendsAndFollower => friendsAndFollower.userNo)
 
 
 
             friendsAndFollowers.map(friendsAndFollowerNo => {
-                if(!friends.hasOwnProperty(friendsAndFollowerNo)){
+                if(!friendList.includes(friendsAndFollowerNo)){
                     followerList.push(friendsAndFollowerNo);
                 }
             })
 
-            // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
-            // const lists = (await models.Friend.findAll({
-            //     where: {
-            //         friendNo : userNo,
-            //     }
-            // })).map(list => list.userNo);
-            //
-            // // 내가 친구추가한 사람들
-            // const friendList = (await models.Friend.findAll({
-            //     where: {
-            //         userNo : userNo
-            //     }
-            // })).map( friend => friend.friendNo );
-
-
-            // 나를 친구추가한 사람들
-            // lists.map((list, i) => {
-            //     if(!friendList.hasOwnProperty(list)){
-            //         followerList.push(list);
-            //     }
-            // });
 
             const results = await models.User.findAll({
                 attributes: {
@@ -215,8 +200,8 @@ module.exports = {
                     data: results,
                     message: null
                 });
+
         } catch(err){
-            // next(err);
             res
                 .status(500)
                 .send({
