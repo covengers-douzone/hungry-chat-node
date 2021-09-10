@@ -152,29 +152,50 @@ module.exports = {
         try{
             const userNo = req.body.userNo;
             let followerList = [];
+
+            // 내가 친구추가한 목록
+            const friends = await models.Friend.findAll({
+                where:{
+                    userNo:userNo
+                }
+            }).map(list => list.userNo);
+
+            // 나를 친구추가한 전체( 팔로워, 친구 통합 )
+            const friendsAndFollowers = await models.Friend.findAll({
+                where:{
+                    friendNo:userNo
+                }
+            }).map(friendsAndFollower => friendsAndFollower.friendNo)
+
+
+
+            friendsAndFollowers.map(friendsAndFollowerNo => {
+                if(!friends.hasOwnProperty(friendsAndFollowerNo)){
+                    followerList.push(friendsAndFollowerNo);
+                }
+            })
+
             // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
-            const lists = (await models.Friend.findAll({
-                where: {
-                    friendNo : userNo,
-                }
-            })).map(list => list.userNo);
+            // const lists = (await models.Friend.findAll({
+            //     where: {
+            //         friendNo : userNo,
+            //     }
+            // })).map(list => list.userNo);
+            //
+            // // 내가 친구추가한 사람들
+            // const friendList = (await models.Friend.findAll({
+            //     where: {
+            //         userNo : userNo
+            //     }
+            // })).map( friend => friend.friendNo );
 
-            // 내가 친구추가한 사람들
-            const friendList = (await models.Friend.findAll({
-                where: {
-                    userNo : userNo
-                }
-            })).map( friend => friend.friendNo );
-
-            const example = [2,3,4];
-            console.log("!!!!!!!!!!!!!!!!!!!!!!!",example.hasOwnProperty(6));
 
             // 나를 친구추가한 사람들
-            lists.map((list, i) => {
-                if(!friendList.hasOwnProperty(list)){
-                    followerList.push(list);
-                }
-            });
+            // lists.map((list, i) => {
+            //     if(!friendList.hasOwnProperty(list)){
+            //         followerList.push(list);
+            //     }
+            // });
 
             const results = await models.User.findAll({
                 attributes: {
