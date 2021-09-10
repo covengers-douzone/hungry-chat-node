@@ -71,7 +71,7 @@ module.exports = {
         }
     },
     addFriend: async (req, res) => {
-        try{
+        try {
             // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
             // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
             // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
@@ -83,7 +83,7 @@ module.exports = {
             // (1) 이메일 정보로 친구 정보 가져오기
             const result = await models.User.findOne({
                 attributes: {
-                    exclude: ['password','phoneNumber','token']
+                    exclude: ['password', 'phoneNumber', 'token']
                 },
                 where: {
                     username: username
@@ -92,18 +92,21 @@ module.exports = {
 
             const results = await models.User.findAll({
                 attributes: {
-                    exclude: ['password','phoneNumber','token']
+                    exclude: ['password', 'phoneNumber', 'token']
                 },
                 include: [
                     {
                         model: models.Friend, as: 'Friends', required: true
                         , where: {
-                            [`$Friends.userNo$`]: userNo
+                            [`$Friends.userNo$`]: userNo,
+                            [`$Friends.friendNo`]: result.no
                         }
                     }
                 ],
             });
-            if(!result){
+
+
+            if (!result) {
                 res
                     .status(200)
                     .send({
@@ -111,7 +114,7 @@ module.exports = {
                         data: null,
                         message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
                     });
-            } else if(result.no.toString() === userNo){
+            } else if (result.no.toString() === userNo) {
                 res
                     .status(200)
                     .send({
@@ -119,23 +122,19 @@ module.exports = {
                         data: null,
                         message: "잘못된 요청입니다. 다시 시도해주세요."
                     });
-            } else if(results.map((result) => {
-                if(result.username === username){
-                    res
-                        .status(200)
-                        .send({
-                            result: 'fail',
-                            data: null,
-                            message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
-                        });
-                }
-            }))
-
+            } else if (results) {
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
+                    });
+            }
                 await models.Friend.create({
                     userNo:userNo,
                     friendNo:result.no
                 })
-
 
             res
                 .status(200)
@@ -147,6 +146,63 @@ module.exports = {
 
         }catch (e){
             console.log(e.message);
+        }
+    },
+    getFollowerList: async(req ,res , next ) => {
+        try{
+            const userNo = req.body.userNo;
+            let followerList = [];
+            // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
+            const lists = (await models.Friend.findAll({
+                where: {
+                    friendNo : userNo,
+                }
+            })).map(list => list.userNo);
+
+            // 내가 친구추가한 사람들
+            const friendList = (await models.Friend.findAll({
+                where: {
+                    userNo : userNo
+                }
+            })).map( friend => friend.friendNo );
+
+            const example = [2,3,4];
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!",example.hasOwnProperty(6));
+
+            // 나를 친구추가한 사람들
+            lists.map((list, i) => {
+                if(!friendList.hasOwnProperty(list)){
+                    followerList.push(list);
+                }
+            });
+
+            const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                where:{
+                    no:{
+                        [Op.in]: followerList
+                    }
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
+            // next(err);
+            res
+                .status(500)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: "getFollowerList Error occurred"
+                });
         }
     },
     deleteChat: async (req,res,next) => {
@@ -232,61 +288,6 @@ module.exports = {
             console.error(`Fetch-Api : getOpenChatRoomList Error : ${err.status} ${err.message}`);
         }
     },
-    getFollowerList: async(req ,res , next ) => {
-        try{
-            const userNo = req.body.userNo;
-            let followerList = [];
-            // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
-            const lists = (await models.Friend.findAll({
-                where: {
-                    friendNo : userNo,
-                }
-            })).map(list => list.userNo);
-
-            // 내가 친구추가한 사람들
-            const friendList = (await models.Friend.findAll({
-                where: {
-                    userNo : userNo
-                }
-            })).map( friend => friend.friendNo );
-
-            // 나를 친구추가한 사람들
-            lists.map((list, i) => {
-                if(friendList[i] === undefined){
-                    followerList.push(list);
-                }
-            });
-            const results = await models.User.findAll({
-                attributes: {
-                    exclude: ['password','phoneNumber','token']
-                },
-                where:{
-                    no:{
-                        [Op.in]: followerList
-                    }
-                }
-            });
-
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(err){
-            // next(err);
-            res
-                .status(500)
-                .send({
-                    result: 'fail',
-                    data: null,
-                    message: "getFollowerList Error occurred"
-                });
-        }
-    },
-
-
     getUserByNo: async (req,res) => {
             try{
                 const result = await models.User.findOne({
