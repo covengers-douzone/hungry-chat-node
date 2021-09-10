@@ -10,6 +10,145 @@ const chatService = require('../services/chat');
 const {sequelize} = require("../models");
 
 module.exports = {
+    /*
+   *  SELECT * FROM Friend A , user B
+   *  WHERE 1 = 1
+   *  AND A.userNo = {}
+   * */
+    getFriendList: async(req ,res , next ) => {
+        try{
+            const userNo = req.body.userNo;
+            const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                include: [
+                    {
+                        model: models.Friend, as: 'Friends', required: true
+                        , where: {
+                            [`$Friends.userNo$`]: userNo
+                        }
+                    }
+                ],
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(err){
+            next(err);
+        }
+    },
+    deleteFriend: async(req, res) => {
+        try{
+            // 1. 받아온 FriendNO 로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
+            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
+            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 4. response
+            const friendNo = req.body.friendNo // 친구의 이메일 계정 정보.
+            const userNo = req.body.userNo; // 사용자.
+
+            const results = await models.Friend.destroy({
+                where:
+                    {
+                        userNo:userNo,
+                        friendNo: friendNo
+                    }
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        }catch (e){
+            console.log(e.message);
+        }
+    },
+    addFriend: async (req, res) => {
+        try{
+            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
+            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
+            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 4. response
+
+            const username = req.body.username // 친구의 이메일 계정 정보.
+            const userNo = req.body.userNo; // 사용자.
+
+            // (1) 이메일 정보로 친구 정보 가져오기
+            const result = await models.User.findOne({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                where: {
+                    username: username
+                }
+            })
+
+            const results = await models.User.findAll({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                include: [
+                    {
+                        model: models.Friend, as: 'Friends', required: true
+                        , where: {
+                            [`$Friends.userNo$`]: userNo
+                        }
+                    }
+                ],
+            });
+            if(!result){
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
+                    });
+            } else if(result.no.toString() === userNo){
+                res
+                    .status(200)
+                    .send({
+                        result: 'fail',
+                        data: null,
+                        message: "잘못된 요청입니다. 다시 시도해주세요."
+                    });
+            } else if(results.map((result) => {
+                if(result.username === username){
+                    res
+                        .status(200)
+                        .send({
+                            result: 'fail',
+                            data: null,
+                            message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
+                        });
+                }
+            }))
+
+                await models.Friend.create({
+                    userNo:userNo,
+                    friendNo:result.no
+                })
+
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: result,
+                    message: null
+                });
+
+        }catch (e){
+            console.log(e.message);
+        }
+    },
     deleteChat: async (req,res,next) => {
         try{
             if(req.body.openChatHostCheck){
@@ -100,10 +239,9 @@ module.exports = {
             // 나를 친구추가한 사람들 + 내가 친구 추가한 사람들
             const lists = (await models.Friend.findAll({
                 where: {
-                    friendNo : userNo
+                    friendNo : userNo,
                 }
             })).map(list => list.userNo);
-
 
             // 내가 친구추가한 사람들
             const friendList = (await models.Friend.findAll({
@@ -118,7 +256,6 @@ module.exports = {
                     followerList.push(list);
                 }
             });
-
             const results = await models.User.findAll({
                 attributes: {
                     exclude: ['password','phoneNumber','token']
@@ -130,10 +267,6 @@ module.exports = {
                 }
             });
 
-            // for(let i=0; i < results.lengetFollowerListth; i++){
-            //     results[i].password = "";
-            //     results[i].phoneNumber = "";
-            // }
             res
                 .status(200)
                 .send({
@@ -152,111 +285,8 @@ module.exports = {
                 });
         }
     },
-    addFriend: async (req, res) => {
-        try{
-            // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
-            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
-            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
-            // 4. response
 
-            const username = req.body.username // 친구의 이메일 계정 정보.
-            const userNo = req.body.userNo; // 사용자.
 
-            // (1) 이메일 정보로 친구 정보 가져오기
-            const result = await models.User.findOne({
-                attributes: {
-                    exclude: ['password','phoneNumber','token']
-                },
-                where: {
-                    username: username
-                }
-            })
-
-            const results = await models.User.findAll({
-                attributes: {
-                    exclude: ['password','phoneNumber','token']
-                },
-                include: [
-                    {
-                        model: models.Friend, as: 'Friends', required: true
-                        , where: {
-                            [`$Friends.userNo$`]: userNo
-                        }
-                    }
-                ],
-            });
-            if(!result){
-                res
-                    .status(200)
-                    .send({
-                        result: 'fail',
-                        data: null,
-                        message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
-                    });
-            } else if(result.no.toString() === userNo){
-                res
-                    .status(200)
-                    .send({
-                        result: 'fail',
-                        data: null,
-                        message: "잘못된 요청입니다. 다시 시도해주세요."
-                    });
-            } else if(results.map((result) => {
-                if(result.username === username){
-                    res
-                        .status(200)
-                        .send({
-                            result: 'fail',
-                            data: null,
-                            message: "이미 존재하는 친구입니다. 다시 한번 확인해주세요."
-                        });
-                }
-            }))
-
-            await models.Friend.create({
-                userNo:userNo,
-                friendNo:result.no
-            })
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: result,
-                    message: null
-                });
-
-        }catch (e){
-            console.log(e.message);
-        }
-    },
-    deleteFriend: async(req, res) => {
-        try{
-            // 1. 받아온 FriendNO 로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
-            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
-            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
-            // 4. response
-            const friendNo = req.body.friendNo // 친구의 이메일 계정 정보.
-            const userNo = req.body.userNo; // 사용자.
-
-            const results = await models.Friend.destroy({
-                where: 
-                {
-                userNo:userNo,
-                friendNo: friendNo
-                }
-            })
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        }catch (e){
-            console.log(e.message);
-        }
-    }
-    ,
     getUserByNo: async (req,res) => {
             try{
                 const result = await models.User.findOne({
@@ -677,44 +707,7 @@ module.exports = {
             next(err);
         }
     },
-    /*
-    *  SELECT * FROM Friend A , user B
-    *  WHERE 1 = 1
-    *  AND A.userNo = {}
-    * */
-    getFriendList: async(req ,res , next ) => {
-        try{
-            const userNo = req.body.userNo;
-            const results = await models.User.findAll({
-                attributes: {
-                    exclude: ['password','phoneNumber','token']
-                },
-                include: [
-                    {
-                        model: models.Friend, as: 'Friends', required: true
-                        , where: {
-                            [`$Friends.userNo$`]: userNo
-                        }
-                    }
-                ],
-            });
 
-            // for(let i=0; i < results.length; i++){
-            //     results[i].password = "";
-            //     results[i].phoneNumber = "";
-            // }
-
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch(err){
-            next(err);
-        }
-    },
     /*
        SELECT  min(A.no) FROM chat A , participant B
        WHERE 1 = 1
