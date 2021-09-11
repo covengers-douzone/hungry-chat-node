@@ -58,14 +58,14 @@ module.exports = {
                         userNo:userNo,
                         friendNo: friendNo
                     }
-                })
-                res
-                    .status(200)
-                    .send({
-                        result: 'success',
-                        data: results,
-                        message: null
-                    });
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
 
 
         }catch (e){
@@ -139,13 +139,13 @@ module.exports = {
                     userNo: userNo,
                     friendNo: result.no
                 })
-                res
-                    .status(200)
-                    .send({
-                        result: 'success',
-                        data: result,
-                        message: null
-                    });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: result,
+                    message: null
+                });
 
         }catch (e){
             console.log(e.message);
@@ -214,28 +214,28 @@ module.exports = {
     deleteChat: async (req,res,next) => {
         try{
             if(req.body.openChatHostCheck){
-                    await models.Chat.destroy({
-                        where:{
-                            roomNo: req.body.roomNo
-                        }
-                    })
-                    await models.Participant.destroy({
-                        where:{
-                            roomNo:req.body.roomNo
-                        }
-                    })
-                    await models.Room.destroy({
-                        where:{
-                            no:req.body.roomNo
-                        }
-                    })
-                    res
-                        .status(200)
-                        .send({
-                            result: 'success',
-                            data: null,
-                            message: null
-                        });
+                await models.Chat.destroy({
+                    where:{
+                        roomNo: req.body.roomNo
+                    }
+                })
+                await models.Participant.destroy({
+                    where:{
+                        roomNo:req.body.roomNo
+                    }
+                })
+                await models.Room.destroy({
+                    where:{
+                        no:req.body.roomNo
+                    }
+                })
+                res
+                    .status(200)
+                    .send({
+                        result: 'success',
+                        data: null,
+                        message: null
+                    });
             } else {
                 await models.Participant.update({userNo:1},{
                     where:{
@@ -254,12 +254,14 @@ module.exports = {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
+
     getOpenChatRoomList: async (req,res,next) => {
         try{
+            const type = req.params.type
             const roomList = (await models.Room.findAll({
-               where:{
-                    type: "public"
-               }
+                where:{
+                    type: type
+                }
             })).map(room => {return room.no});
 
             const results = await models.Room.findAll({
@@ -295,15 +297,15 @@ module.exports = {
         }
     },
     getUserByNo: async (req,res) => {
-            try{
-                const result = await models.User.findOne({
-                    attributes: {
-                        exclude: ['password','phoneNumber','token']
-                    },
-                    where: {
-                        no: req.params.userNo
-                    }
-                })
+        try{
+            const result = await models.User.findOne({
+                attributes: {
+                    exclude: ['password','phoneNumber','token']
+                },
+                where: {
+                    no: req.params.userNo
+                }
+            })
             res
                 .status(200)
                 .send({
@@ -359,7 +361,7 @@ module.exports = {
         try{
             const userNo = req.body.data.userNo; // 사용자.
             const isDeleted = req.body.data.isDeleted; // 삭제 상태값.
-            
+
             console.log("idDeleted:       " , isDeleted);
             console.log("userNo:       " , userNo);
 
@@ -373,7 +375,7 @@ module.exports = {
             })
 
             //password = (password === "null" ? result.password : password);
-           
+
             await models.User.update({
                 isDeleted : isDeleted
             },{
