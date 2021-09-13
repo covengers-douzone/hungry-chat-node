@@ -37,15 +37,16 @@ module.exports = function(role) {
                 })
                 if(results.role === roleUser){
                     console.log("Role 권한 : 회원")
+                    next()
                 }else if (results.role === roleUnknown){
                     console.log("Role 권한 : 비회원")
+                    next()
                 }else{
                     throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
                 }
 
             }
 
-            next();
 
         } catch (e){
             console.log("Error From Node:"+e.message);

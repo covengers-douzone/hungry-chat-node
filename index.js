@@ -126,6 +126,7 @@
                 subClient['subClient'].on('message', (roomName, message) => {
                     // message : JavaScript:배유진:안녕~:3:05 pm
                     const [redisRoomNo, redisUserno, chatNo, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
+                    console.log("roomName" , roomName , "message" , message  ,"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!@@@@@@@@@@@@@@@@" )
                     socket.emit('message',{
                         socketUserNo: redisUserno,
                         chatNo: chatNo

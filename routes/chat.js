@@ -49,6 +49,11 @@ router.route('/getLastReadNoCount').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),
 router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.deleteChatNo);
 
 // layer 변경
+
+// //비회원 로직
+router.route('/deleteUnknown').post(auth(["ROLE_UNKNOWN"]), controller.deleteUnknown);
+router.route('/updateHeadCount').post(controller.updateHeadCount);
+router.route('/getJoinOk/:roomNo/:participantNo').get(controller.getJoinOk)
 router.route('/joinRoom').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.joinRoom);
 router.route('/leftRoom').post(controller.leftRoom); // 강제 퇴장시 실행되어야 해서 auth X
 module.exports = router;
