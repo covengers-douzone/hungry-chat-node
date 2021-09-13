@@ -20,7 +20,7 @@ module.exports = {
             const userNo = req.body.userNo;
             const results = await models.User.findAll({
                 attributes: {
-                    exclude: ['password','phoneNumber','token']
+                    exclude: ['password','token']
                 },
                 include: [
                     {
@@ -184,7 +184,7 @@ module.exports = {
 
             const results = await models.User.findAll({
                 attributes: {
-                    exclude: ['password','phoneNumber','token']
+                    exclude: ['password','token']
                 },
                 where:{
                     no:{
