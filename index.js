@@ -1,4 +1,6 @@
+
 (function () {
+    
         const express = require('express');
         const session = require('express-session');
         const http = require('http');
@@ -78,14 +80,32 @@
             })
             .listen(process.env.PORT);
 
-            require('elastic-apm-node').start({
+            /*require('elastic-apm-node').start({
                 // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
                 appName: 'redis-03',
                 // Use if APM Server requires a token
                 secretToken: '',
                 // Set custom APM Server URL (default: http://localhost:8200)
                 serverUrl: 'http://127.0.0.1:8200',
-              });
+              });*/
+
+              
+            // Add this to the VERY top of the first file loaded in your app          
+            var apm = require('elastic-apm-node').start({
+
+            // Override the service name from package.json
+            // Allowed characters: a-z, A-Z, 0-9, -, _, and space
+            serviceName: 'covengers',
+    
+            // Use if APM Server requires a secret token
+            secretToken: 'sx9oKfnfIAWnx0j5ip',
+    
+            // Set the custom APM Server URL (default: http://localhost:8200)
+            serverUrl: 'https://e6ced939bb724739ba971111add5e1a7.apm.us-central1.gcp.cloud.es.io:443',
+    
+            // Set the service environment
+            environment: 'production'
+            })
 
         const io = socketio(server);
         //let subList = []
