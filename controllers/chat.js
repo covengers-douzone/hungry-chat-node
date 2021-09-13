@@ -297,17 +297,7 @@ module.exports = {
         }
     },
     getUserByNo: async (req,res) => {
-<<<<<<< HEAD
-            try{
-                const result = await models.User.findOne({
-                    attributes: {
-                        exclude: ['password','token']
-                    },
-                    where: {
-                        no: req.params.userNo
-                    }
-                })
-=======
+
         try{
             const result = await models.User.findOne({
                 attributes: {
@@ -317,7 +307,7 @@ module.exports = {
                     no: req.params.userNo
                 }
             })
->>>>>>> 70ab929da817be513e185509916038765fb7f861
+
             res
                 .status(200)
                 .send({
