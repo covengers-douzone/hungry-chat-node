@@ -272,7 +272,7 @@ module.exports = {
                             {
                                 model: models.User, required: true
                                 ,attributes: {
-                                    exclude: ['password','phoneNumber','token']
+                                    exclude: ['password','token']
                                 }
                             }
                         ]
@@ -297,6 +297,7 @@ module.exports = {
         }
     },
     getUserByNo: async (req,res) => {
+
         try{
             const result = await models.User.findOne({
                 attributes: {
@@ -306,6 +307,7 @@ module.exports = {
                     no: req.params.userNo
                 }
             })
+
             res
                 .status(200)
                 .send({
@@ -822,6 +824,28 @@ module.exports = {
             next(e);
         }
     },
+    getJoinOk: async(req ,res , next ) => {
+        try{
+            const roomNo = req.params.roomNo;
+            const participantNo = req.params.participantNo;
+            const results = await models.Participant.findOne({
+                where:{
+                    roomNo :roomNo,
+                    no : participantNo,
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
     //update Chat SET notReadCount = 0 where roomNo = 1
     updateChatZero: async(req ,res , next ) => {
         try{
@@ -905,6 +929,59 @@ module.exports = {
                     data: null,
                     message: e.message
                 });
+        }
+    },
+    deleteUnknown: async(req ,res , next ) => {
+        try{
+            const UserNo = req.body.UserNo;
+            const results = await models.User.destroy({
+                where:{
+                    no : UserNo,
+                }
+            });
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
+        }
+    },
+    updateHeadCount: async(req ,res , next ) => {
+        try{
+            const type = req.body.type;
+            const roomNo = req.body.roomNo;
+            let results;
+            if(type === "join"){
+                results = await models.Room.update({
+                    'headCount': models.sequelize.Sequelize.literal('headCount + 1')
+                },{
+                    where: {
+                        no: roomNo
+                    }
+                });
+            }else if (type === "exit") {
+                results = await models.Room.update({
+                    'headCount': models.sequelize.Sequelize.literal('headCount - 1')
+                },{
+                    where: {
+                        no: roomNo
+                    }
+                });
+            }
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch(e){
+            next(e);
         }
     },
 }
