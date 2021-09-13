@@ -110,3 +110,8 @@ select *
 from participant
 ;
 
+select * from room;
+desc room;
+insert into room values(null,'official room','관리자가 만든 방',null,'official', now(),1);
+insert into room values(null,'official room2','관리자가 만든 방2',null,'official', now(),1);
+insert into room values(null,'official room3','관리자가 만든 방3',null,'official', now(),1);
