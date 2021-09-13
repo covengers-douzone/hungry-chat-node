@@ -50,5 +50,5 @@ router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.delete
 
 // layer 변경
 router.route('/joinRoom').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.joinRoom);
-router.route('/leftRoom').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.leftRoom);
+router.route('/leftRoom').post(controller.leftRoom); // 강제 퇴장시 실행되어야 해서 auth X
 module.exports = router;
