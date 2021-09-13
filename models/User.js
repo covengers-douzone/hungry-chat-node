@@ -26,7 +26,7 @@ module.exports = function(sequelize){
         },
         password: {
             field: 'password',
-            type: DataTypes.STRING(200),
+            type: DataTypes.TEXT,
             allowNull: false
         },
         isDeleted: {
@@ -37,12 +37,12 @@ module.exports = function(sequelize){
         backgroundImageUrl: {
             field: 'backgroundImageUrl',
             type: DataTypes.TEXT,
-            allowNull: true
+            allowNull: false
         },
         profileImageUrl: {
             field: 'profileImageUrl',
             type: DataTypes.TEXT,
-            allowNull: true
+            allowNull: false
         },
         role: {
             field: 'role',
@@ -51,7 +51,7 @@ module.exports = function(sequelize){
         },
         token: {
             field: 'token',
-            type: DataTypes.STRING(200),
+            type: DataTypes.TEXT,
             allowNull: true
         },
         createdAt: {
@@ -70,6 +70,12 @@ module.exports = function(sequelize){
             field: 'nickname',
             type: DataTypes.STRING(45),
             allowNull: true
+        },
+        comments: {
+            field: 'comments',
+            type: DataTypes.TEXT,
+            allowNull: false,
+            defaultValue: 'covengers'
         },
     }, {
         underscored: false, // updateAt -> updateAt (underscored: update_at)

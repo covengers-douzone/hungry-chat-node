@@ -14,6 +14,11 @@ module.exports = function(sequelize){
             type: DataTypes.STRING(45),
             allowNull: false
         },
+        content: {
+            field: 'content',
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
         password: {
             field: 'password',
             type: DataTypes.STRING(45),
@@ -21,7 +26,7 @@ module.exports = function(sequelize){
         },
         type: {
             field: 'type',
-            type: DataTypes.ENUM('private', 'public'),
+            type: DataTypes.ENUM('private', 'public' , 'official'),
             allowNull: false
         },
         createdAt: {
