@@ -322,6 +322,8 @@ module.exports = {
             let { file, body: {nickname, password, userNo, comments}} = req;
             let fileUrl;
 
+            console.log(file);
+
             const result = await models.User.findOne({
                 attributes: {
                     exclude: ['phoneNumber','token']
@@ -420,7 +422,7 @@ module.exports = {
                             {
                                 model: models.User, required: true
                                 ,attributes: {
-                                    exclude: ['password','phoneNumber','token']
+                                    exclude: ['password','token']
                                 }
                             }
                         ]
