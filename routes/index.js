@@ -9,8 +9,7 @@ const applicationRouter = {
                 res.locals.res = res;
                 next();
             })
-            .use('/api', require('./chatMember.js'))
-            .use('/api', require('./chatUnknown.js'))
+            .use('/api', require('./chat'))
             .use(errorRouter.error404)
             .use(errorRouter.error500)
     }
