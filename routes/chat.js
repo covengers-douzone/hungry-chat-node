@@ -22,7 +22,7 @@ router.route('/chatlistCount/:roomNo/').get(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"
 router.route('/getChat/:chatNo').get(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.getChat);
 
 router.route('/chatlist/:roomNo').get(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]), controller.getChatList);
-router.route('/message').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),upload.single( "file"), controller.send);
+router.route('/message').post(upload.single( "file"),auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]), controller.send);
 router.route('/createRoom').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.createRoom);
 router.route('/createParticipant').post(auth(["ROLE_USER"]),controller.createParticipant);
 router.route('/setStatus').post(auth(["ROLE_USER"]),controller.updateStatus);
