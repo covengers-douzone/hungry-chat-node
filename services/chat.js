@@ -1,8 +1,6 @@
 const chatRepository = require('../repository/chat');
 
 module.exports = {
-
-
     joinRoom: async (params) => {
         // variables
         const participantNo = params.participantNo;

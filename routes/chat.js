@@ -48,6 +48,8 @@ router.route('/getLastReadNo').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),contr
 router.route('/getLastReadNoCount').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.getLastReadNoCount);
 router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.deleteChatNo);
 
+
+
 // layer 변경
 
 // //비회원 로직
