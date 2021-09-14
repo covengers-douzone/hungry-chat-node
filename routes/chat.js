@@ -34,12 +34,12 @@ router.route('/updateLastReadAt').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),contro
 
 
 
-router.route('/deleteChat').post( auth(["ROLE_USER"]),controller.deleteChat);
+router.route('/deleteChat').post( auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.deleteChat);
 router.route('/getFriendList').post(auth(["ROLE_USER"]),controller.getFriendList);
 router.route('/getFollowerList').post(auth(["ROLE_USER"]),controller.getFollowerList);
 router.route('/getOpenChatRoomList/:type').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getOpenChatRoomList);
 
-router.route('/addFriend').post(controller.addFriend);
+router.route('/addFriend').post(auth(["ROLE_USER"]),controller.addFriend);
 router.route('/deleteFriend').post(auth(["ROLE_USER"]),controller.deleteFriend);
 router.route('/getUserByNo/:userNo').get(auth(["ROLE_USER"]),controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"),auth(["ROLE_USER"]), controller.updateSettings);
@@ -51,9 +51,9 @@ router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.delete
 // layer 변경f
 
 // //비회원 로직
-router.route('/deleteUnknown').post(controller.deleteUnknown);
-router.route('/updateHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"],controller.updateHeadCount));
-router.route('/getJoinOk/:roomNo/:participantNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"],controller.getJoinOk))
+router.route('/deleteUnknown').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.deleteUnknown)
+router.route('/updateHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateHeadCount);
+router.route('/getJoinOk/:roomNo/:participantNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getJoinOk)
 router.route('/joinRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.joinRoom);
-router.route('/leftRoom').post(controller.leftRoom); // 강제 퇴장시 실행되어야 해서 auth X
+router.route('/leftRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.leftRoom); // 강제 퇴장시 실행되어야 해서 auth X
 module.exports = router;
