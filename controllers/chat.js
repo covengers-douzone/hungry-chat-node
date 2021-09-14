@@ -937,8 +937,9 @@ module.exports = {
     },
     deleteUnknown: async (req, res, next) => {
         try {
-            console.log("비회원 회원가입 탈퇴!!!!!!!!!!!!!!")
             const userNo = req.body.userNo;
+
+
 
 
             const Partcipant = await models.Participant.update({

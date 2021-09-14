@@ -25,11 +25,11 @@ router.route('/chatlist/:roomNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]), contro
 router.route('/message').post(upload.single( "file"),auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.send);
 router.route('/createRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.createRoom);
 router.route('/createParticipant').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.createParticipant);
-router.route('/setStatus').post(auth(["ROLE_USER"]),controller.updateStatus);
+router.route('/setStatus').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateStatus);
 router.route('/getHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getHeadCount);
-router.route('/updateSendNotReadCount').post(auth(["ROLE_USER"]),controller.updateSendNotReadCount);
-router.route('/updateRoomNotReadCount').post(auth(["ROLE_USER"]),controller.updateRoomNotReadCount);
-router.route('/updateLastReadAt').post(auth(["ROLE_USER"]),controller.updateLastReadAt);
+router.route('/updateSendNotReadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateSendNotReadCount);
+router.route('/updateRoomNotReadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateRoomNotReadCount);
+router.route('/updateLastReadAt').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateLastReadAt);
 
 
 
@@ -51,7 +51,7 @@ router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.delete
 // layer 변경f
 
 // //비회원 로직
-router.route('/deleteUnknown').post(auth(["ROLE_UNKNOWN"],controller.deleteUnknown));
+router.route('/deleteUnknown').post(controller.deleteUnknown);
 router.route('/updateHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"],controller.updateHeadCount));
 router.route('/getJoinOk/:roomNo/:participantNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"],controller.getJoinOk))
 router.route('/joinRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.joinRoom);

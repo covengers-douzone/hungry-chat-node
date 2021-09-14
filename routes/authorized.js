@@ -44,8 +44,8 @@ module.exports = function (role) {
 
                 console.log("decoded" , decoded.role[0])
 
-                if (results.role === roleUser.toString()) {
-                } else if (results.role === roleUnknown.toString()) {
+                if (results.role === roleUser) {
+                } else if (results.role === roleUnknown) {
 
                 } else {
                     throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
