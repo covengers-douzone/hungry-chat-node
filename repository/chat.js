@@ -8,6 +8,84 @@ const fs = require('fs');
 const {user} = require("../redis-conf");
 
 module.exports = {
+    getGhostRoom: async ()=>{
+        try{
+            const deleteList = [];
+
+            const includeGhostRoom = (await models.Room.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true
+                        , where: {
+                            [`$Participants.userNo$`]: 1
+                        }
+                    }
+                ]
+            })).map(room => {return room.no});
+
+            const ghostRoom = await models.Room.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true,
+                        include: [
+                            {
+                                model: models.User, required: true
+                                ,attributes: {
+                                    exclude: ['password','token']
+                                }
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    no:{
+                        [Op.in]: includeGhostRoom
+                    }
+                }
+            });
+
+            ghostRoom.map(ghost => {
+                if (ghost.type === "private") {
+                    if ((ghost.Participants.length === (ghost.Participants.filter(participant => {
+                        return participant.userNo === 1
+                    })).length)) {
+                        deleteList.push(ghost.no);
+                    }
+                }
+            })
+
+            if(deleteList.length===0){
+                return false;
+            }else{
+                const result3 = await models.Chat.destroy({
+                    where:{
+                        roomNo:{
+                            [Op.in]:deleteList
+                        }
+                    }
+                })
+
+                const result2 = await models.Participant.destroy({
+                    where:{
+                        roomNo:{
+                            [Op.in]:deleteList
+                        }
+                    }
+                })
+
+                const result1 = await models.Room.destroy({
+                    where:{
+                        no:{
+                            [Op.in]:deleteList
+                        }
+                    }
+                })
+                return true;
+            }
+        }catch (e) {
+            console.error(e.message);
+        }
+    },
     // layer
     updateStatus: async(participantNo,status) => {
         try{
