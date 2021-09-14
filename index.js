@@ -87,6 +87,8 @@
             serverUrl: 'http://127.0.0.1:8200',
         });
 
+
+
         const io = socketio(server);
         //let subList = []
         let info = {}
@@ -185,10 +187,16 @@
                         subClient[0]['subClient'].quit();
                         subClients.splice(subClients.indexOf(subClient[0]));
                     }
-                }
-            });
+               }
+           });
         })
-    }
-)();
-
-
+    const chat = require('./repository/chat');
+        chat.getGhostRoom(() => {
+        } ).then(r => {
+            if(r){
+                console.log("GhostRoom 제거");
+            }else {
+                console.log("GhostRoom 없음");
+            }
+        });
+})();

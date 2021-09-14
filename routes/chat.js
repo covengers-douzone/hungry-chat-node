@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
 })
 const upload = multer({storage:storage});
 
-//
 const router = express.Router();
 router.route('/roomlist/:userNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getRoomList);
 router.route('/chatlist/:roomNo/:offset/:limit').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatList);
@@ -32,8 +31,6 @@ router.route('/updateRoomNotReadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),
 router.route('/updateLastReadAt').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateLastReadAt);
 
 
-
-
 router.route('/deleteChat').post( auth(["ROLE_USER"]),controller.deleteChat);
 router.route('/getFriendList').post(auth(["ROLE_USER"]),controller.getFriendList);
 router.route('/getFollowerList').post(auth(["ROLE_USER"]),controller.getFollowerList);
@@ -48,8 +45,7 @@ router.route('/getLastReadNo').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controlle
 router.route('/getLastReadNoCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNoCount);
 router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.deleteChatNo);
 
-// layer 변경f
-
+// layer 변경
 // //비회원 로직
 router.route('/deleteUnknown').post(controller.deleteUnknown);
 router.route('/updateHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"],controller.updateHeadCount));

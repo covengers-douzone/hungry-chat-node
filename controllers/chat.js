@@ -79,8 +79,8 @@ module.exports = {
             // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
             // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
             // 4. response
-
             const username = req.body.username // 친구의 이메일 계정 정보.
+            console.log(req.body);
             const userNo = req.body.userNo; // 사용자.
 
             // (1) 이메일 정보로 친구 정보 가져오기
