@@ -39,9 +39,9 @@ router.route('/getFriendList').post(auth(["ROLE_USER"]),controller.getFriendList
 router.route('/getFollowerList').post(auth(["ROLE_USER"]),controller.getFollowerList);
 router.route('/getOpenChatRoomList/:type').get(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.getOpenChatRoomList);
 
-router.route('/addFriend').post( auth(["ROLE_USER"]),controller.addFriend);
-router.route('/deleteFriend').post( auth(["ROLE_USER"]),controller.deleteFriend);
-router.route('/getUserByNo/:userNo').get( auth(["ROLE_USER"]),controller.getUserByNo);
+router.route('/addFriend').post(controller.addFriend);
+router.route('/deleteFriend').post(auth(["ROLE_USER"]),controller.deleteFriend);
+router.route('/getUserByNo/:userNo').get(auth(["ROLE_USER"]),controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"),auth(["ROLE_USER"]), controller.updateSettings);
 router.route('/deleteUserInfo').post( auth(["ROLE_USER"]),controller.deleteUserInfo);
 router.route('/getLastReadNo').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.getLastReadNo);
@@ -51,7 +51,7 @@ router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.delete
 // layer 변경
 
 // //비회원 로직
-router.route('/deleteUnknown').post(auth(["ROLE_UNKNOWN"]), controller.deleteUnknown);
+router.route('/deleteUnknown').post(controller.deleteUnknown);
 router.route('/updateHeadCount').post(controller.updateHeadCount);
 router.route('/getJoinOk/:roomNo/:participantNo').get(controller.getJoinOk)
 router.route('/joinRoom').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),controller.joinRoom);
