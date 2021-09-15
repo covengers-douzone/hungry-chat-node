@@ -155,10 +155,10 @@
                 const user = userLeave(socket.id);
 
                 if (user) {
-                    // 강제로 종료 시킨 경우 대비
-
                     const chatService = require('./services/chat');
-                    const chatController = require('./controllers/chat')
+                    const chatController = require('./controllers/chat');
+
+                    // 회원: 강제로 종료 시킨 경우 대비
                     await chatService.leftRoom({
                         participantNo: user.participantNo
                     });
