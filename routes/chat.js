@@ -19,7 +19,7 @@ router.route('/roomlist/:userNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),control
 router.route('/chatlist/:roomNo/:offset/:limit').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatList);
 router.route('/chatlistCount/:roomNo/').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatListCount);
 router.route('/getChat/:chatNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChat);
-
+router.route('/chatlist/:roomNo/:offset/:limit/:contents').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatSearchList);
 router.route('/chatlist/:roomNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.getChatList);
 router.route('/message').post(upload.single( "file"),auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.send);
 router.route('/createRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.createRoom);

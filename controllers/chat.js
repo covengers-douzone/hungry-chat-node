@@ -521,6 +521,50 @@ module.exports = {
                 });
         }
     },
+    getChatSearchList: async (req, res, next) => {
+        try {
+            const roomNo = req.params.roomNo;
+            const limit = req.params.limit;
+            const offset = req.params.offset
+            const contents = req.params.contents
+
+            console.log("getChatSearchList @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" ,roomNo , limit , offset , contents)
+            const results = await models.Chat.findAll({
+                where : {
+                    contents :{
+                        [Op.like]: "%" + contents + "%"
+                    }
+                },
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo,
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+                limit: Number(limit),
+                offset: Number(offset)
+
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (err) {
+            res
+                .status(200)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: "System Error"
+                });
+        }
+    },
     getChat: async (req, res, next) => {
         try {
             const chatNo = req.params.chatNo;
