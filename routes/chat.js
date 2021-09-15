@@ -49,6 +49,7 @@ router.route('/getLastReadNoCount').post(auth(["ROLE_USER"] , ["ROLE_UNKNOWN"]),
 router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.deleteChatNo);
 
 // layer 변경
+router.route('/getFileListInRoom').post(controller.getFileListInRoom);
 
 // //비회원 로직
 router.route('/deleteUnknown').post(auth(["ROLE_UNKNOWN"]), controller.deleteUnknown);

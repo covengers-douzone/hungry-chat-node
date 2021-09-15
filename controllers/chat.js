@@ -15,12 +15,12 @@ module.exports = {
    *  WHERE 1 = 1
    *  AND A.userNo = {}
    * */
-    getFriendList: async(req ,res , next ) => {
-        try{
+    getFriendList: async (req, res, next) => {
+        try {
             const userNo = req.body.userNo;
             const results = await models.User.findAll({
                 attributes: {
-                    exclude: ['password','token']
+                    exclude: ['password', 'token']
                 },
                 include: [
                     {
@@ -39,12 +39,12 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
-    deleteFriend: async(req, res) => {
-        try{
+    deleteFriend: async (req, res) => {
+        try {
             // 1. 받아온 FriendNO 로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
             // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
             // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
@@ -55,7 +55,7 @@ module.exports = {
             const results = await models.Friend.destroy({
                 where:
                     {
-                        userNo:userNo,
+                        userNo: userNo,
                         friendNo: friendNo
                     }
             })
@@ -68,7 +68,7 @@ module.exports = {
                 });
 
 
-        }catch (e){
+        } catch (e) {
             console.log(e.message);
         }
     },
@@ -115,7 +115,7 @@ module.exports = {
                         data: null,
                         message: "이메일이 일치하지 않습니다. 다시 한번 확인해주세요."
                     });
-            } else if (result.no.toString() ===  userNo.toString()) {
+            } else if (result.no.toString() === userNo.toString()) {
                 res
                     .status(200)
                     .send({
@@ -123,8 +123,8 @@ module.exports = {
                         data: null,
                         message: "잘못된 요청입니다. 다시 시도해주세요."
                     });
-            }else if(results.map((result) => {
-                if(result.username === username){
+            } else if (results.map((result) => {
+                if (result.username === username) {
                     res
                         .status(200)
                         .send({
@@ -147,12 +147,12 @@ module.exports = {
                     message: null
                 });
 
-        }catch (e){
+        } catch (e) {
             console.log(e.message);
         }
     },
-    getFollowerList: async(req ,res , next ) => {
-        try{
+    getFollowerList: async (req, res, next) => {
+        try {
             const userNo = req.body.userNo;
             let friendList = [];
             let followerList = [];
@@ -160,23 +160,22 @@ module.exports = {
 
             // 내가 친구 추가
             const friends = (await models.Friend.findAll({
-                where:{
-                    userNo:userNo
+                where: {
+                    userNo: userNo
                 }
             })).map(friend => friendList.push(friend.friendNo));
 
 
             // 나를 친구추가한 전체( 팔로워, 친구 통합 )
             const friendsAndFollowers = (await models.Friend.findAll({
-                where:{
-                    friendNo:userNo
+                where: {
+                    friendNo: userNo
                 }
             })).map(friendsAndFollower => friendsAndFollower.userNo)
 
 
-
             friendsAndFollowers.map(friendsAndFollowerNo => {
-                if(!friendList.includes(friendsAndFollowerNo)){
+                if (!friendList.includes(friendsAndFollowerNo)) {
                     followerList.push(friendsAndFollowerNo);
                 }
             })
@@ -184,10 +183,10 @@ module.exports = {
 
             const results = await models.User.findAll({
                 attributes: {
-                    exclude: ['password','token']
+                    exclude: ['password', 'token']
                 },
-                where:{
-                    no:{
+                where: {
+                    no: {
                         [Op.in]: followerList
                     }
                 }
@@ -201,7 +200,7 @@ module.exports = {
                     message: null
                 });
 
-        } catch(err){
+        } catch (err) {
             res
                 .status(500)
                 .send({
@@ -211,22 +210,22 @@ module.exports = {
                 });
         }
     },
-    deleteChat: async (req,res,next) => {
-        try{
-            if(req.body.openChatHostCheck){
+    deleteChat: async (req, res, next) => {
+        try {
+            if (req.body.openChatHostCheck) {
                 await models.Chat.destroy({
-                    where:{
+                    where: {
                         roomNo: req.body.roomNo
                     }
                 })
                 await models.Participant.destroy({
-                    where:{
-                        roomNo:req.body.roomNo
+                    where: {
+                        roomNo: req.body.roomNo
                     }
                 })
                 await models.Room.destroy({
-                    where:{
-                        no:req.body.roomNo
+                    where: {
+                        no: req.body.roomNo
                     }
                 })
                 res
@@ -237,9 +236,9 @@ module.exports = {
                         message: null
                     });
             } else {
-                await models.Participant.update({userNo:1},{
-                    where:{
-                        no:req.body.participantNo
+                await models.Participant.update({userNo: 1}, {
+                    where: {
+                        no: req.body.participantNo
                     }
                 })
             }
@@ -250,19 +249,21 @@ module.exports = {
                     data: null,
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
 
-    getOpenChatRoomList: async (req,res,next) => {
-        try{
+    getOpenChatRoomList: async (req, res, next) => {
+        try {
             const type = req.params.type
             const roomList = (await models.Room.findAll({
-                where:{
+                where: {
                     type: type
                 }
-            })).map(room => {return room.no});
+            })).map(room => {
+                return room.no
+            });
 
             const results = await models.Room.findAll({
                 include: [
@@ -271,15 +272,15 @@ module.exports = {
                         include: [
                             {
                                 model: models.User, required: true
-                                ,attributes: {
-                                    exclude: ['password','token']
+                                , attributes: {
+                                    exclude: ['password', 'token']
                                 }
                             }
                         ]
                     }
                 ],
                 where: {
-                    no:{
+                    no: {
                         [Op.in]: roomList
                     }
                 }
@@ -292,16 +293,16 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             console.error(`Fetch-Api : getOpenChatRoomList Error : ${err.status} ${err.message}`);
         }
     },
-    getUserByNo: async (req,res) => {
+    getUserByNo: async (req, res) => {
 
-        try{
+        try {
             const result = await models.User.findOne({
                 attributes: {
-                    exclude: ['password','phoneNumber','token']
+                    exclude: ['password', 'phoneNumber', 'token']
                 },
                 where: {
                     no: req.params.userNo
@@ -315,20 +316,20 @@ module.exports = {
                     data: result,
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             console.error(`Fetch-Api : getUserByNo Error : ${err.status} ${err.message}`);
         }
     },
-    updateSettings: async (req,res) => {
-        try{
-            let { file, body: {nickname, password, userNo, comments}} = req;
+    updateSettings: async (req, res) => {
+        try {
+            let {file, body: {nickname, password, userNo, comments}} = req;
             let fileUrl;
 
             console.log(file);
 
             const result = await models.User.findOne({
                 attributes: {
-                    exclude: ['phoneNumber','token']
+                    exclude: ['phoneNumber', 'token']
                 },
                 where: {
                     no: userNo
@@ -336,16 +337,16 @@ module.exports = {
             })
 
             password = (password === "null" ? result.password : password);
-            fileUrl = (file === undefined ? result.profileImageUrl :  process.env.URL+process.env.UPLOADIMAGE_STORE_LOCATION+file.filename)
+            fileUrl = (file === undefined ? result.profileImageUrl : process.env.URL + process.env.UPLOADIMAGE_STORE_LOCATION + file.filename)
 
             await models.User.update({
                 profileImageUrl: fileUrl,
                 comments: comments,
                 nickname: nickname,
                 password: password
-            },{
-                where:{
-                    no:userNo
+            }, {
+                where: {
+                    no: userNo
                 }
             })
 
@@ -356,22 +357,22 @@ module.exports = {
                     data: fileUrl,
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
         }
     },
 
-    deleteUserInfo: async (req,res) => {
-        try{
+    deleteUserInfo: async (req, res) => {
+        try {
             const userNo = req.body.data.userNo; // 사용자.
             const isDeleted = req.body.data.isDeleted; // 삭제 상태값.
 
-            console.log("idDeleted:       " , isDeleted);
-            console.log("userNo:       " , userNo);
+            console.log("idDeleted:       ", isDeleted);
+            console.log("userNo:       ", userNo);
 
             const result = await models.User.findOne({
                 attributes: {
-                    exclude: ['phoneNumber','token']
+                    exclude: ['phoneNumber', 'token']
                 },
                 where: {
                     no: userNo
@@ -381,10 +382,10 @@ module.exports = {
             //password = (password === "null" ? result.password : password);
 
             await models.User.update({
-                isDeleted : isDeleted
-            },{
-                where:{
-                    no:userNo
+                isDeleted: isDeleted
+            }, {
+                where: {
+                    no: userNo
                 }
             })
 
@@ -396,13 +397,13 @@ module.exports = {
                     result: 'success',
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
         }
     },
 
-    getRoomList: async (req,res,next) => {
-        try{
+    getRoomList: async (req, res, next) => {
+        try {
             const userNo = req.params.userNo;
 
             const roomList = (await models.Room.findAll({
@@ -414,7 +415,9 @@ module.exports = {
                         }
                     }
                 ]
-            })).map(room => {return room.no});
+            })).map(room => {
+                return room.no
+            });
 
             const results = await models.Room.findAll({
                 include: [
@@ -423,15 +426,15 @@ module.exports = {
                         include: [
                             {
                                 model: models.User, required: true
-                                ,attributes: {
-                                    exclude: ['password','token']
+                                , attributes: {
+                                    exclude: ['password', 'token']
                                 }
                             }
                         ]
                     }
                 ],
                 where: {
-                    no:{
+                    no: {
                         [Op.in]: roomList
                     }
                 }
@@ -444,7 +447,7 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch (err){
+        } catch (err) {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
@@ -517,8 +520,8 @@ module.exports = {
                 });
         }
     },
-    getChat: async (req,res,next) => {
-        try{
+    getChat: async (req, res, next) => {
+        try {
             const chatNo = req.params.chatNo;
 
             const results = await models.Chat.findOne({
@@ -534,12 +537,12 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
-    getHeadCount : async(req ,res , next ) => {
-        try{
+    getHeadCount: async (req, res, next) => {
+        try {
             const headCount = await models.Room.findOne({
                 include: [
                     {
@@ -557,26 +560,26 @@ module.exports = {
                     data: headCount.headCount,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
-    send : async(req ,res , next ) => {
-        try{
-            const { file, body: {roomNo,participantNo,text,headCount:notReadCount}} = req;
+    send: async (req, res, next) => {
+        try {
+            const {file, body: {roomNo, participantNo, text, headCount: notReadCount}} = req;
 
             let contents;
             let type;
-            if(!file){
+            if (!file) {
                 contents = text;
                 type = "TEXT";
-            } else{
+            } else {
                 contents = file.path;
                 type = "IMG"
             }
 
             const results = await models.Chat.create({
-                roomNo , type , contents , notReadCount , participantNo
+                roomNo, type, contents, notReadCount, participantNo
             });
             await pubClient.publish(`${roomNo}`, `${roomNo}:${participantNo}:${results.no}:${contents}:${moment().format('h:mm a')}:${notReadCount}`)
             res
@@ -586,7 +589,7 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
@@ -597,8 +600,8 @@ module.exports = {
     //    where p.lastReadAt < c.createdAt
     //    AND p.no = 1
     //    ;
-    updateRoomNotReadCount: async(req ,res , next ) => {
-        try{
+    updateRoomNotReadCount: async (req, res, next) => {
+        try {
             const participantNo = req.body.participantNo;
 
             const participant = await models.Participant.findOne({
@@ -608,7 +611,7 @@ module.exports = {
             });
             const results = await models.Chat.update({
                 notReadCount: models.sequelize.Sequelize.literal('notReadCount - 1')
-            },{
+            }, {
                 where: {
                     createdAt: {
                         [Op.gt]: participant.lastReadAt
@@ -623,16 +626,16 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
-    updateSendNotReadCount: async(req ,res , next ) => {
-        try{
+    updateSendNotReadCount: async (req, res, next) => {
+        try {
             const chatNo = req.body.chatNo;
             const results = await models.Chat.update({
                 'notReadCount': models.sequelize.Sequelize.literal('notReadCount - 1')
-            },{
+            }, {
                 where: {
                     no: chatNo
                 }
@@ -644,12 +647,12 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
-    createRoom : async(req ,res , next ) => {
-        try{
+    createRoom: async (req, res, next) => {
+        try {
             const title = req.body.title;
             const content = req.body.content;
             const headCount = req.body.headCount;
@@ -657,7 +660,7 @@ module.exports = {
             const password = req.body.password;
 
             const results = await models.Room.create({
-                title, content, password,type,headCount
+                title, content, password, type, headCount
             });
             res
                 .status(200)
@@ -666,12 +669,12 @@ module.exports = {
                     data: results.no,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
-    createParticipant : async(req ,res , next ) => {
-        try{
+    createParticipant: async (req, res, next) => {
+        try {
             const role = req.body.role;
             const status = 0;
             const lastReadAt = new Date().toString();
@@ -684,7 +687,7 @@ module.exports = {
             })).nickname;
 
             const results = await models.Participant.create({
-                role , status , lastReadAt , roomNo ,userNo , nickName
+                role, status, lastReadAt, roomNo, userNo, nickName
             })
             res
                 .status(200)
@@ -693,18 +696,18 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
-    updateStatus: async(req ,res , next ) => {
-        try{
+    updateStatus: async (req, res, next) => {
+        try {
             const ParticipantNo = req.body.ParticipantNo;
             const status = req.body.status;
 
             const results = await models.Participant.update({
                 status: status
-            },{
+            }, {
                 where: {
                     no: ParticipantNo
                 }
@@ -716,7 +719,7 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
@@ -728,32 +731,32 @@ module.exports = {
        AND A.roomNo = b.roomNo
        AND A.createdAt < B.LastReadAt
     * */
-    getLastReadAt: async(req ,res , next ) => { // 마지막 읽은 시각을 찾는다
-        try{
+    getLastReadAt: async (req, res, next) => { // 마지막 읽은 시각을 찾는다
+        try {
             const ParticipantNo = req.body.ParticipantNo;
 
             const results = await models.Chat.findOne({
-                attributes : ['no'],
-                include : [
+                attributes: ['no'],
+                include: [
                     {
                         model: models.Participant, as: 'Participant',
                         attributes: ["no"]
                     }
                 ]
             })
-        } catch(err){
+        } catch (err) {
             next(err);
         }
     },
-    updateLastReadAt: async(req ,res , next ) => {
-        try{
+    updateLastReadAt: async (req, res, next) => {
+        try {
 
-            updateLastReadAt.service(req,body,parmeter, count , gjgopf);
+            updateLastReadAt.service(req, body, parmeter, count, gjgopf);
 
             const participantNo = req.body.participantNo;
             const results = await models.Participant.update({
                 lastReadAt: new Date().toString()
-            },{
+            }, {
                 where: {
                     no: participantNo
                 }
@@ -766,22 +769,22 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
     // 마지막 읽은메시지의 No값을 받아온다. Partials - Chat
-    getLastReadNo: async(req ,res , next ) => {
-        try{
+    getLastReadNo: async (req, res, next) => {
+        try {
             const participantNo = req.body.participantNo;
             const participant = await models.Participant.findOne({
-                where:{
+                where: {
                     no: participantNo
                 }
             });
-            const results = await models.Chat.max('no',{
-                where:{
-                    roomNo : participant.roomNo,
+            const results = await models.Chat.max('no', {
+                where: {
+                    roomNo: participant.roomNo,
                     createdAt: {
                         [Op.gt]: participant.lastReadAt
                     }
@@ -795,18 +798,18 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
     // 마지막 읽은메시지 이후의 리스트의 갯수를 출력한다. Partials - Chat
-    getLastReadNoCount: async(req ,res , next ) => {
-        try{
+    getLastReadNoCount: async (req, res, next) => {
+        try {
             const participantNo = req.body.participantNo;
             const participant = await models.Participant.findByPk(participantNo);
             const results = await models.Chat.findAndCountAll({
-                where:{
-                    roomNo : participant.roomNo,
+                where: {
+                    roomNo: participant.roomNo,
                     createdAt: {
                         [Op.gt]: participant.lastReadAt
                     }
@@ -820,18 +823,18 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
-    getJoinOk: async(req ,res , next ) => {
-        try{
+    getJoinOk: async (req, res, next) => {
+        try {
             const roomNo = req.params.roomNo;
             const participantNo = req.params.participantNo;
             const results = await models.Participant.findOne({
-                where:{
-                    roomNo :roomNo,
-                    no : participantNo,
+                where: {
+                    roomNo: roomNo,
+                    no: participantNo,
                 }
             });
 
@@ -842,17 +845,17 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
     //update Chat SET notReadCount = 0 where roomNo = 1
-    updateChatZero: async(req ,res , next ) => {
-        try{
+    updateChatZero: async (req, res, next) => {
+        try {
             const roomNo = req.body.roomNo;
             const results = await models.Chat.update({
                 notReadCount: 0
-            },{
+            }, {
                 where: {
                     roomNo: roomNo
                 }
@@ -864,12 +867,12 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
     // ChatNo 삭제  Partials - Chat
-    deleteChatNo: async(req ,res , next ) => {
+    deleteChatNo: async (req, res, next) => {
         try {
             const chatNo = req.params.chatNo;
             const results = await models.Chat.destroy({
@@ -890,8 +893,8 @@ module.exports = {
     },
 
     // layer 변경
-    joinRoom : async(req ,res , next ) => {
-        try{
+    joinRoom: async (req, res, next) => {
+        try {
             const results = await chatService.joinRoom(req.body);
 
             res
@@ -901,7 +904,7 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             res
                 .status(400)
                 .send({
@@ -911,8 +914,8 @@ module.exports = {
                 });
         }
     },
-    leftRoom : async(req ,res , next ) => {
-        try{
+    leftRoom: async (req, res, next) => {
+        try {
             const results = await chatService.leftRoom(req.body);
             res
                 .status(200)
@@ -921,7 +924,7 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             res
                 .status(400)
                 .send({
@@ -931,12 +934,12 @@ module.exports = {
                 });
         }
     },
-    deleteUnknown: async(req ,res , next ) => {
-        try{
+    deleteUnknown: async (req, res, next) => {
+        try {
             const UserNo = req.body.UserNo;
             const results = await models.User.destroy({
-                where:{
-                    no : UserNo,
+                where: {
+                    no: UserNo,
                 }
             });
 
@@ -947,27 +950,27 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
             next(e);
         }
     },
-    updateHeadCount: async(req ,res , next ) => {
-        try{
+    updateHeadCount: async (req, res, next) => {
+        try {
             const type = req.body.type;
             const roomNo = req.body.roomNo;
             let results;
-            if(type === "join"){
+            if (type === "join") {
                 results = await models.Room.update({
                     'headCount': models.sequelize.Sequelize.literal('headCount + 1')
-                },{
+                }, {
                     where: {
                         no: roomNo
                     }
                 });
-            }else if (type === "exit") {
+            } else if (type === "exit") {
                 results = await models.Room.update({
                     'headCount': models.sequelize.Sequelize.literal('headCount - 1')
-                },{
+                }, {
                     where: {
                         no: roomNo
                     }
@@ -980,7 +983,37 @@ module.exports = {
                     data: results,
                     message: null
                 });
-        } catch(e){
+        } catch (e) {
+            next(e);
+        }
+    },
+    getFileListInRoom: async (req, res, next) => {
+        try {
+            const roomNo = req.body.roomNo;
+            const type = req.body.type; //file type(TEXT,IMG,...)
+            console.log('getFileListInRoom',roomNo,type)
+            const results = await models.Chat.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+                where: {
+                    type: type
+                }
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (e) {
             next(e);
         }
     },
