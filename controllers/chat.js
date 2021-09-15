@@ -1,6 +1,6 @@
 const models = require('../models');
 const redis = require('redis');
-const client = redis.createClient({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT })
+const client = redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
 const pubClient = client.duplicate();
 const moment = require('moment');
 const {Op} = require('sequelize');
@@ -74,12 +74,13 @@ module.exports = {
     },
     addFriend: async (req, res) => {
         try {
+            console.log("addFriend")
             // 1. 받아온 이메일 주소로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
             // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
             // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
             // 4. response
-
             const username = req.body.username // 친구의 이메일 계정 정보.
+            console.log(req.body);
             const userNo = req.body.userNo; // 사용자.
 
             // (1) 이메일 정보로 친구 정보 가져오기
@@ -936,10 +937,19 @@ module.exports = {
     },
     deleteUnknown: async (req, res, next) => {
         try {
-            const UserNo = req.body.UserNo;
+            const userNo = req.body.userNo;
+
+            const Partcipant = await models.Participant.update({
+                userNo: 1
+            }, {
+                where: {
+                    userNo: userNo,
+                }
+            });
+
             const results = await models.User.destroy({
                 where: {
-                    no: UserNo,
+                    no: userNo,
                 }
             });
 

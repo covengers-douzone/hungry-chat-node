@@ -78,36 +78,50 @@
             })
             .listen(process.env.PORT);
 
-            require('elastic-apm-node').start({
-                // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-                appName: 'redis-03',
-                // Use if APM Server requires a token
-                secretToken: '',
-                // Set custom APM Server URL (default: http://localhost:8200)
-                serverUrl: 'http://127.0.0.1:8200',
-              });
+        require('elastic-apm-node').start({
+            // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
+            appName: 'redis-03',
+            // Use if APM Server requires a token
+            secretToken: '',
+            // Set custom APM Server URL (default: http://localhost:8200)
+            serverUrl: 'http://127.0.0.1:8200',
+        });
+
+
 
         const io = socketio(server);
         //let subList = []
         let info = {}
         let roomNoTest
+        let userNoTest
+        let socketMemberCheck = true
         const subClients = [];
 
         io.on('connection', socket => {
-            socket.on('join',({nickName,roomNo,participantNo},callback)=>{
-                const user = userJoin(socket.id,nickName,roomNo,participantNo);
+
+            socket.on('unknown', (userNo, memeberCheck) => {
+                socketMemberCheck = memeberCheck;
+                userJoin(socket.id);
+                userNoTest = userNo
+                console.log("userNoTest @@@@@@@@@@@@", userNoTest)
+
+            })
+            socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
+                const user = userJoin(socket.id, nickName, roomNo, participantNo);
                 roomNoTest = roomNo
+
+
                 // sub
                 const subClient = {
                     socketid: socket.id,
-                    subClient: redis.createClient({ host: process.env.REDIS_HOST, port: process.env.REDIS_PORT })
+                    subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
                 }
                 subClient['subClient'].subscribe(`${roomNo}`);
                 subClient['subClient'].on('message', (roomName, message) => {
                     // message : JavaScript:배유진:안녕~:3:05 pm
                     const [redisRoomNo, redisUserno, chatNo, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
-                    console.log("roomName" , roomName , "message" , message  ,"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!@@@@@@@@@@@@@@@@" )
-                    socket.emit('message',{
+                    console.log("roomName", roomName, "message", message, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!@@@@@@@@@@@@@@@@")
+                    socket.emit('message', {
                         socketUserNo: redisUserno,
                         chatNo: chatNo
                     });
@@ -119,14 +133,14 @@
                     status: 'ok'
                 })
                 //  Send users and room info to insert innerText of navigation bar
-                io.to(user.room).emit('roomUsers',{
+                io.to(user.room).emit('roomUsers', {
                     room: user.room,
                     users: getRoomUsers(user.room)
                 })
             });
-            socket.on("deleteMessage"  ,({roomNo , chatNo} , callback) => {
-                io.to(roomNo).emit('deleteMessage',{
-                    chatNo : chatNo,
+            socket.on("deleteMessage", ({roomNo, chatNo}, callback) => {
+                io.to(roomNo).emit('deleteMessage', {
+                    chatNo: chatNo,
                     room: roomNo,
                     users: getRoomUsers(roomNo)
                 })
@@ -137,33 +151,52 @@
             })
 
             // Runs when client disconnects
-           socket.on('disconnect',async ()=> {
-               const user = userLeave(socket.id);
-               if (user) {
-                   // 강제로 종료 시킨 경우 대비
-                   const chatService = require('./services/chat');
-                   await chatService.leftRoom({
-                       participantNo: user.participantNo
-                   });
+            socket.on('disconnect', async () => {
+                const user = userLeave(socket.id);
 
-                   // 나간 사람은 user 목록에서 지움
-                   io.to(user.room).emit('roomUsers', {
-                       room: user.room,
-                       users: getRoomUsers(user.room)
-                   });
+                if (user) {
+                    const chatService = require('./services/chat');
+                    const chatController = require('./controllers/chat');
 
-                   //unsubscribe && 객체 없애기
-                   const subClient = subClients.filter((subClient) => {
-                       return (subClient['socketid'] === socket.id)
-                   });
-                   if(subClient && Array.isArray(subClient) && subClient[0]){
-                       subClient[0]['subClient'].unsubscribe();
-                       subClient[0]['subClient'].quit();
-                       subClients.splice(subClients.indexOf(subClient[0]));
+                    // 회원: 강제로 종료 시킨 경우 대비
+                    await chatService.leftRoom({
+                        participantNo: user.participantNo
+                    });
+
+                    if (memeberCheck === false) {
+                        console.log("userNoTest", userNoTest)
+                        await chatController.deleteUnknown({
+                            body: {
+                                userNo: userNoTest
+                            }
+                        })
+                    }
+
+                    // 나간 사람은 user 목록에서 지움
+                    io.to(user.room).emit('roomUsers', {
+                        room: user.room,
+                        users: getRoomUsers(user.room)
+                    });
+
+                    //unsubscribe && 객체 없애기
+                    const subClient = subClients.filter((subClient) => {
+                        return (subClient['socketid'] === socket.id)
+                    });
+                    if (subClient && Array.isArray(subClient) && subClient[0]) {
+                        subClient[0]['subClient'].unsubscribe();
+                        subClient[0]['subClient'].quit();
+                        subClients.splice(subClients.indexOf(subClient[0]));
                     }
                }
            });
-        })}
-)();
-
-
+        })
+    const chat = require('./repository/chat');
+        chat.getGhostRoom(() => {
+        } ).then(r => {
+            if(r){
+                console.log("GhostRoom 제거");
+            }else {
+                console.log("GhostRoom 없음");
+            }
+        });
+})();
