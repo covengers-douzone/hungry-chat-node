@@ -99,6 +99,37 @@
 
         io.on('connection', socket => {
 
+            // 유저가 사이트에 들어온 경우
+            socket.on('joinUser',async ({user}) => {
+                console.log('joinUser',user);
+
+                const subClient = {
+                    socketid: socket.id,
+                    subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
+                }
+
+                const chatService = require('./services/chat');
+                const roomNoList = await chatService.joinUser({
+                    userNo: Number(user.userNo)
+                });
+
+                // 들어가있는 모든 방 구독시키기
+                roomNoList.map(roomNo => {
+                    subClient['subClient'].subscribe(roomNo);
+                });
+                subClient['subClient'].on('message', (roomName, message) => {
+                    // message : JavaScript:배유진:안녕~:3:05 pm
+                    const [redisRoomNo, redisUserno, chatNo, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
+
+                    socket.emit('getMessage', {
+                        socketUserNo: redisUserno,
+                        roomNo : redisRoomNo
+                    });
+                })
+                subClients.push(subClient);
+
+            })
+
             socket.on('unknown', (userNo, memeberCheck) => {
                 socketMemberCheck = memeberCheck;
                 userJoin(socket.id);
@@ -106,6 +137,7 @@
                 console.log("userNoTest @@@@@@@@@@@@", userNoTest)
 
             })
+            // 방에 입장
             socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
                 const user = userJoin(socket.id, nickName, roomNo, participantNo);
                 roomNoTest = roomNo
