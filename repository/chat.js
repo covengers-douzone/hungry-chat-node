@@ -230,6 +230,26 @@ module.exports = {
             console.error(e);
         }
     },
+    getRoomList: async (userNo) => {
+        try {
+            const roomList = (await models.Room.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participants', required: true
+                        , where: {
+                            [`$Participants.userNo$`]: userNo
+                        }
+                    }
+                ]
+            })).map(room => {
+                return room.no
+            });
+
+            return roomList;
+        } catch (err) {
+            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
+        }
+    },
 
 
     // X
@@ -428,56 +448,6 @@ module.exports = {
                 });
         } catch (err){
             console.error(`Fetch-Api : getNickname Error : ${err.status} ${err.message}`);
-        }
-    },
-    getRoomList: async (req,res,next) => {
-        try{
-            const userNo = req.params.userNo;
-
-            const roomList = (await models.Room.findAll({
-                include: [
-                    {
-                        model: models.Participant, as: 'Participants', required: true
-                        , where: {
-                            [`$Participants.userNo$`]: userNo
-                        }
-                    }
-                ]
-            })).map(room => {return room.no});
-
-            const results = await models.Room.findAll({
-                include: [
-                    {
-                        model: models.Participant, as: 'Participants', required: true,
-                        include: [
-                            {
-                                model: models.User, required: true
-                                ,attributes: {
-                                    exclude: ['password','phoneNumber','token']
-                                }
-                            }
-                        ]
-                    }
-                ],
-                where: {
-                    no:{
-                        [Op.in]: roomList
-                    }
-                }
-            });
-
-            console.log(results[0].type);
-
-
-            res
-                .status(200)
-                .send({
-                    result: 'success',
-                    data: results,
-                    message: null
-                });
-        } catch (err){
-            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
 
