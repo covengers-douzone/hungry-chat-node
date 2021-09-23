@@ -837,6 +837,110 @@ const options = {
                     }
                 }
             },
+            "/api/chatlist/{roomNo}/{offset}/{limit}/{contents}": {
+                get:{
+                    tags: ["Chat"],
+                    summary: "채팅 리스트 조회(페이징)",
+                    parameters:[
+                        {
+                            name: "roomNo",
+                            in: "path",
+                            description: "사용자가 선택한 방 번호",
+                            required: true,
+                            schema:{
+                                type: "integer",
+                            }
+                        },
+                        {
+                            name: "offset",
+                            in: "path",
+                            description: "채팅방 리스트를 나타낼 오프셋",
+                            required: true,
+                            schema: {
+                                type:"integer"
+                            }
+                        },
+                        {
+                            name: "limit",
+                            in: "path",
+                            description: "한번에 나타낼 채팅의 갯수",
+                            required: true,
+                            schema: {
+                                type:"integer"
+                            }
+                        },
+                        {
+                            name: "contents",
+                            in: "path",
+                            description: "검색할 채팅 내용",
+                            required: true,
+                            schema: {
+                                type:"string"
+                            }
+                        },
+                        {
+                            name: "Authorization",
+                            in: "header",
+                            description: "토큰",
+                            required: true,
+                            example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJlbHNhQGdtYWlsLmNvbSIsInJvbGUiOlsiUk9MRV9VU0VSIl0sImlzcyI6Ii9hcGkvdXNlci9sb2dpbiIsImV4cCI6MTYzMjM2NjE3Nn0.N2CMGWSowZ9SFLBEaxh8AGporgrZ0OE4k2sIazUoEnNwIWmycVkqPXiRcFkvQGOdfeWfKj46DaMNhrHHKgDYfw",
+                            schema:{
+                                type: "string"
+                            }
+                        },
+
+                        {
+                            name: "Access-Control-Allow-Headers",
+                            in: "header",
+                            description: "Cors",
+                            required: true,
+                            value: "Content-Type"
+                        },
+                        {
+                            name: "Access-Control-Allow-Origin",
+                            in: "header",
+                            description: "Cors-허용 Origin",
+                            required: true,
+                            value: "http://localhost:9999"
+                        },
+                        {
+                            name: "Access-Control-Allow-Method",
+                            in: "header",
+                            description: "Cors-Method 형식",
+                            required: true,
+                            value: "get"
+                        },
+                        {
+                            name: "Content-Type",
+                            in: "header",
+                            value: "text/plain",
+                            schema:{
+                                type: "string"
+                            }
+                        },
+                        {
+                            name: "Accept",
+                            in: "header",
+                            value: "application/json",
+                            schema:{
+                                type: "string"
+                            }
+                        },
+                        {
+                            name: "credentials",
+                            in: "header",
+                            value: "include",
+                            schema:{
+                                type: "string"
+                            }
+                        },
+                    ],
+                    security: {
+                        bearerAuth: []
+                    }
+                }
+            },
+
             //post
             "/api/message": {
                 post:{
@@ -1148,6 +1252,7 @@ const options = {
                     }
                 }
             },
+
 
             //put(update)
             "/api/setStatus": {

@@ -21,6 +21,7 @@ router.route('/roomlist/:userNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),control
 router.route('/chatlist/:roomNo/:offset/:limit').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatList);
 router.route('/chatlistCount/:roomNo/').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatListCount);
 router.route('/getChat/:chatNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChat);
+router.route('/chatlist/:roomNo/:offset/:limit/:contents').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatSearchList);
 // 중복, 차후에 처리할것.
 router.route('/chatlist/:roomNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.getChatList);
 router.route('/message').post(upload.single( "file"),auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.send);
@@ -40,13 +41,15 @@ router.route('/getOpenChatRoomList/:type').get(auth(["ROLE_USER","ROLE_UNKNOWN"]
 
 router.route('/addFriend').post(auth(["ROLE_USER"]),controller.addFriend);
 router.route('/deleteFriend').post(auth(["ROLE_USER"]),controller.deleteFriend);
-router.route('/getUserByNo/:userNo').get(auth(["ROLE_USER"]),controller.getUserByNo);
+router.route('/getUserByNo/:userNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"),auth(["ROLE_USER"]), controller.updateSettings);
 router.route('/deleteUserInfo').post( auth(["ROLE_USER"]),controller.deleteUserInfo);
 router.route('/getLastReadNo').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNo);
 router.route('/getLastReadNoCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNoCount);
 
 // layer 변경
+router.route('/getFileListInRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getFileListInRoom);
+
 // //비회원 로직
 router.route('/deleteUnknown').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.deleteUnknown)
 router.route('/updateHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateHeadCount);

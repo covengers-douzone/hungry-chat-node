@@ -526,6 +526,50 @@ module.exports = {
                 });
         }
     },
+    getChatSearchList: async (req, res, next) => {
+        try {
+            const roomNo = req.params.roomNo;
+            const limit = req.params.limit;
+            const offset = req.params.offset
+            const contents = req.params.contents
+
+            console.log("getChatSearchList @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" ,roomNo , limit , offset , contents)
+            const results = await models.Chat.findAll({
+                where : {
+                    contents :{
+                        [Op.like]: "%" + contents + "%"
+                    }
+                },
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo,
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+                limit: Number(limit),
+                offset: Number(offset)
+
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (err) {
+            res
+                .status(200)
+                .send({
+                    result: 'fail',
+                    data: null,
+                    message: "System Error"
+                });
+        }
+    },
     getChat: async (req, res, next) => {
         try {
             const chatNo = req.params.chatNo;
@@ -941,9 +985,6 @@ module.exports = {
         try {
             const userNo = req.body.userNo;
 
-
-
-
             const Partcipant = await models.Participant.update({
                 userNo: 1
             }, {
@@ -952,15 +993,11 @@ module.exports = {
                 }
             });
 
-            console.log("Partcipant" , Partcipant )
-            console.log("userNo" , userNo)
-
             const results = await models.User.destroy({
                 where: {
                     no: userNo,
                 }
             });
-            console.log("results" , results)
 
             res
                 .status(200)
@@ -995,6 +1032,36 @@ module.exports = {
                     }
                 });
             }
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (e) {
+            next(e);
+        }
+    },
+    getFileListInRoom: async (req, res, next) => {
+        try {
+            const roomNo = req.body.roomNo;
+            const type = req.body.type; //file type(TEXT,IMG,...)
+            console.log('getFileListInRoom',roomNo,type)
+            const results = await models.Chat.findAll({
+                include: [
+                    {
+                        model: models.Participant, as: 'Participant', required: true
+                        , where: {
+                            [`$Participant.roomNo$`]: roomNo
+                        }
+                    }
+                ],
+                order: [['no', 'ASC']],
+                where: {
+                    type: type
+                }
+            });
             res
                 .status(200)
                 .send({
