@@ -26,7 +26,7 @@ module.exports = function(sequelize){
             allowNull: false,
             defaultValue: Sequelize.NOW
         },
-        contents: {
+        낸: {
             field: 'contents',
             type: DataTypes.TEXT('long'),
             allowNull: false
