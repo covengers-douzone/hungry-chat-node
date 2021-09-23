@@ -143,18 +143,31 @@
              socketMemberCheck = memeberCheck;
              const unknown = unknownJoin(socket.id, userNo)
              userNoTest = userNo
-             console.log("unknown@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", unknown)
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+             console.log("unknown Join", unknown)
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
          })
         
         // 유저가 방에 join 한 경우
          socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
              const user = userJoin(socket.id, nickName, roomNo, participantNo, userNo);
              roomNoTest = roomNo
- 
- 
+
+
              // sub
              const subClient = {
                  socketid: socket.id,
+
                  subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
              }
  
@@ -197,12 +210,52 @@
          // Runs when client disconnects
          socket.on('disconnect', async () => {
  
-             const unkwnown = unknownLeave(socket.id);
+             const unkwnown = await unknownLeave(socket.id);
+
+
              if(unkwnown){
-                 console.log(socket.id)
-                 const chatController = require('./controllers/chat');
-                 console.log("unknown disconnect !!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@")
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log(" unkwnown @@@@@@@@" , socket.id)
+                 console.log(unkwnown)
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                  const chatController = require('./controllers/chat');
+
                  if (socketMemberCheck === false) {
+                     // 룸 정보를 다 불러오고
+
+
+
+                     const chatService = require('./services/chat');
+                     const roomNoList = await chatService.joinUser({
+                         userNo: Number(unkwnown.userNo)
+                     });
+
+
+
+                     // 룸 마다 헤드카운터 - 1  감소 후
+
+
+                     roomNoList.map(async (e, i) => {
+                         console.log("roomNoList" , e)
+                     await chatController.updateHeadCount({
+                         body: {
+                             roomNo : e ,
+                             type : "exit" ,
+                         }
+                     }, null, null)
+                     })
+
+
                      await chatController.deleteUnknown({
                          body: {
                              userNo: unkwnown.userNo
@@ -225,7 +278,9 @@
                      room: user.room,
                      users: getRoomUsers(user.room)
                  });
- 
+
+
+
                  //unsubscribe && 객체 없애기
                  const subClient = subClients.filter((subClient) => {
                      return (subClient['socketid'] === socket.id)
