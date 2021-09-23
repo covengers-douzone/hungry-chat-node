@@ -267,6 +267,8 @@ module.exports = {
                 return room.no
             });
 
+            console.log("roomList :::: ", roomList);
+
             const results = await models.Room.findAll({
                 include: [
                     {
@@ -287,6 +289,9 @@ module.exports = {
                     }
                 }
             });
+
+
+            console.log("results ::: ", results);
 
             res
                 .status(200)
@@ -555,7 +560,8 @@ module.exports = {
             const results = await models.Chat.findAll({
                 where : {
                     contents :{
-                        [Op.like]: "%" + contents + "%"
+                        // [Op.like]: "%" + contents + "%"
+                        [Op.like]: contents
                     }
                 },
                 include: [
@@ -818,9 +824,6 @@ module.exports = {
     },
     updateLastReadAt: async (req, res, next) => {
         try {
-
-            updateLastReadAt.service(req, body, parmeter, count, gjgopf);
-
             const participantNo = req.body.participantNo;
             const results = await models.Participant.update({
                 lastReadAt: new Date().toString()

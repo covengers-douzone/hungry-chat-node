@@ -15,11 +15,14 @@ const storage = multer.diskStorage({
 const upload = multer({storage:storage});
 
 const router = express.Router();
+
+
 router.route('/roomlist/:userNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getRoomList);
 router.route('/chatlist/:roomNo/:offset/:limit').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatList);
 router.route('/chatlistCount/:roomNo/').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatListCount);
 router.route('/getChat/:chatNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChat);
 router.route('/chatlist/:roomNo/:offset/:limit/:contents').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatSearchList);
+// 중복, 차후에 처리할것.
 router.route('/chatlist/:roomNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.getChatList);
 router.route('/message').post(upload.single( "file"),auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.send);
 router.route('/createRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.createRoom);
@@ -43,7 +46,6 @@ router.route('/updateSettings').post(upload.single( "file"),auth(["ROLE_USER"]),
 router.route('/deleteUserInfo').post( auth(["ROLE_USER"]),controller.deleteUserInfo);
 router.route('/getLastReadNo').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNo);
 router.route('/getLastReadNoCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNoCount);
-router.route('/deleteChatNo/:chatNo').post(auth(["ROLE_USER"]),controller.deleteChatNo);
 
 // layer 변경
 router.route('/getFileListInRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getFileListInRoom);
@@ -55,3 +57,4 @@ router.route('/getJoinOk/:roomNo/:participantNo').get(auth(["ROLE_USER","ROLE_UN
 router.route('/joinRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.joinRoom);
 router.route('/leftRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.leftRoom); // 강제 퇴장시 실행되어야 해서 auth X
 module.exports = router;
+
