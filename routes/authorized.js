@@ -6,6 +6,7 @@ const TOKEN_INVALID = -2;
 module.exports = function (role) {
     return async function (req, res, next) {
         console.log("-------------------------------------------AUTH-------------------------------------------")
+        console.log(req.headers.authorization);
         let splitToken = req.headers.authorization === undefined ? (req.body.Authorization === undefined ? req.body.data.Authorization.split(' ') : req.body.Authorization.split(' ')) : req.headers.authorization.split(' ');
         let token = splitToken[1];
 
@@ -43,14 +44,14 @@ module.exports = function (role) {
                 })
 
                 console.log("decoded" , decoded.role[0])
-
-                if (results.role === roleUser) {
-                    console.log("회원으로 접속")
-                } else if (results.role === roleUnknown) {
-                    console.log("비 회원으로 접속")
-                } else {
-                    throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
-                }
+                //
+                // if (results.role === roleUser) {
+                //     console.log("회원으로 접속")
+                // } else if (results.role === roleUnknown) {
+                //     console.log("비 회원으로 접속")
+                // } else {
+                //     throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
+                // }
                 next()
             }
 

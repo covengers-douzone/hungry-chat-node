@@ -121,7 +121,6 @@ select *
 from room r
 join participant p on r.no = p.roomNo
 where p.userNo = 1
-;
 and r.no = 73
 ; 
 
