@@ -267,7 +267,7 @@ module.exports = {
                 return room.no
             });
 
-            console.log("roomList :::: ", roomList);
+            //console.log("roomList :::: ", roomList);
 
             const results = await models.Room.findAll({
                 include: [
@@ -291,7 +291,7 @@ module.exports = {
             });
 
 
-            console.log("results ::: ", results);
+            //console.log("results ::: ", results);
 
             res
                 .status(200)
@@ -491,7 +491,12 @@ module.exports = {
                         model: models.Participant, as: 'Participant', required: true
                         , where: {
                             [`$Participant.roomNo$`]: roomNo
-                        }
+                        },
+                        include:[
+                            {
+                                model: models.User, required: true , attributes: {exclude: ['password', 'token']}
+                            }
+                        ]
                     }
                 ],
                 order: [['no', 'ASC']],
