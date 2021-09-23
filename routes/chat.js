@@ -38,7 +38,7 @@ router.route('/getOpenChatRoomList/:type').get(auth(["ROLE_USER","ROLE_UNKNOWN"]
 
 router.route('/addFriend').post(auth(["ROLE_USER"]),controller.addFriend);
 router.route('/deleteFriend').post(auth(["ROLE_USER"]),controller.deleteFriend);
-router.route('/getUserByNo/:userNo').get(auth(["ROLE_USER"]),controller.getUserByNo);
+router.route('/getUserByNo/:userNo').get(auth([["ROLE_USER","ROLE_UNKNOWN"]]),controller.getUserByNo);
 router.route('/updateSettings').post(upload.single( "file"),auth(["ROLE_USER"]), controller.updateSettings);
 router.route('/deleteUserInfo').post( auth(["ROLE_USER"]),controller.deleteUserInfo);
 router.route('/getLastReadNo').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNo);
