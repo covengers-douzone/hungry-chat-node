@@ -267,7 +267,7 @@ module.exports = {
                 return room.no
             });
 
-            console.log("roomList :::: ", roomList);
+            //console.log("roomList :::: ", roomList);
 
             const results = await models.Room.findAll({
                 include: [
@@ -291,7 +291,7 @@ module.exports = {
             });
 
 
-            console.log("results ::: ", results);
+            //console.log("results ::: ", results);
 
             res
                 .status(200)
