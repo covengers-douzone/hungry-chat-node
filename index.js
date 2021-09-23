@@ -109,8 +109,6 @@
 
         // 유저가 사이트에 들어온 경우
         socket.on('joinUser', async ({user}) => {
-            console.log('joinUser', user);
-
             const subClient = {
                 socketid: socket.id,
                 subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
@@ -135,7 +133,6 @@
                 });
             })
             subClients.push(subClient);
-
         })
 
         // unknown 유저가 들어온 경우
