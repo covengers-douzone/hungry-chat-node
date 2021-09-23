@@ -537,7 +537,8 @@ module.exports = {
             const results = await models.Chat.findAll({
                 where : {
                     contents :{
-                        [Op.like]: "%" + contents + "%"
+                        // [Op.like]: "%" + contents + "%"
+                        [Op.like]: contents
                     }
                 },
                 include: [
