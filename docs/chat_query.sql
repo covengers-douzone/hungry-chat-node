@@ -115,3 +115,14 @@ desc room;
 insert into room values(null,'official room','관리자가 만든 방',null,'official', now(),1);
 insert into room values(null,'official room2','관리자가 만든 방2',null,'official', now(),1);
 insert into room values(null,'official room3','관리자가 만든 방3',null,'official', now(),1);
+
+-- ghost
+select * 
+from room r
+join participant p on r.no = p.roomNo
+where p.userNo = 1
+;
+and r.no = 73
+; 
+
+-- image list in room
