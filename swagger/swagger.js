@@ -226,7 +226,7 @@ const options = {
                         },
                         type:{
                             type:"enum",
-                            description:"채팅 타입(TEXT, IMG)"
+                            description:"채팅 타입(TEXT, IMG, VIDEO)"
                         },
                         createdAt:{
                             type:"DATE",

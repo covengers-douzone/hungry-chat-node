@@ -8,6 +8,7 @@ const fs = require('fs');
 const {user} = require("../redis-conf");
 const chatService = require('../services/chat');
 const {sequelize} = require("../models");
+const {type} = require("mocha/lib/utils");
 
 module.exports = {
     /*
@@ -266,7 +267,7 @@ module.exports = {
                 return room.no
             });
 
-            console.log("roomList :::: ", roomList);
+            //console.log("roomList :::: ", roomList);
 
             const results = await models.Room.findAll({
                 include: [
@@ -290,7 +291,7 @@ module.exports = {
             });
 
 
-            console.log("results ::: ", results);
+            //console.log("results ::: ", results);
 
             res
                 .status(200)
@@ -422,8 +423,13 @@ module.exports = {
                     }
                 ]
             })).map(room => {
-                return room.no
+                return {
+                    roomNo: room.no,
+                    participant: room.Participants[0]
+                }
             });
+
+            const room = roomList.map(room => room.roomNo);
 
             const results = await models.Room.findAll({
                 include: [
@@ -435,22 +441,39 @@ module.exports = {
                                 , attributes: {
                                     exclude: ['password', 'token']
                                 }
-                            }
-                        ]
-                    }
+                            },
+                        ],
+                    },
                 ],
                 where: {
                     no: {
-                        [Op.in]: roomList
+                        [Op.in]: room
                     }
                 }
             });
+
+            const unreadChatCount = await Promise.all(roomList.map(async room => {
+                return (await models.Chat.findAll({
+                    where: {
+                        roomNo : room.roomNo,
+                        createdAt: {
+                            [Op.gt]: room.participant.lastReadAt
+                        },
+                        participantNo: {
+                            [Op.notIn]: [room.participant.no]
+                        }
+                    }
+                })).length;
+            }));
 
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: results,
+                    data: {
+                        results: results,
+                        unreadChatCount: unreadChatCount
+                    },
                     message: null
                 });
         } catch (err) {
@@ -622,16 +645,27 @@ module.exports = {
     },
     send: async (req, res, next) => {
         try {
-            const {file, body: {roomNo, participantNo, text, headCount: notReadCount}} = req;
+            const {file, body: {roomNo, participantNo, text, headCount: notReadCount , markDown}} = req;
 
             let contents;
             let type;
             if (!file) {
                 contents = text;
-                type = "TEXT";
-            } else {
+                if (markDown === "true") {
+                    type = "MARKDOWN";
+                } else if (markDown === "false") {
+                    type = "TEXT";
+                }
+            }
+            else if(file) {
+                const fileType = file.mimetype.split('/')[0];
+                console.log("filepath: ",   fileType);
+                if(fileType === 'video'){
+                    type = "VIDEO"
+                } else if(fileType === 'image'){
+                    type = "IMG"
+                }
                 contents = file.path;
-                type = "IMG"
             }
 
             const results = await models.Chat.create({

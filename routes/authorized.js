@@ -44,7 +44,10 @@ module.exports = function (role) {
                 })
 
                 console.log("decoded" , decoded.role[0])
-                //
+
+                if(!results){
+                    throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
+                }
                 // if (results.role === roleUser) {
                 //     console.log("회원으로 접속")
                 // } else if (results.role === roleUnknown) {
@@ -52,12 +55,20 @@ module.exports = function (role) {
                 // } else {
                 //     throw new Error("DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다.");
                 // }
-                next()
+                next();
             }
 
 
         } catch (e) {
             console.log("Error From Node:" + e.message);
+
+            if(e.message === "DB에서 정보를 로드할 수 없습니다. 혹은 권한이 없습니다."){
+                res.status(500).send({
+                    result: "fail",
+                    data: null,
+                    message: "Access Denied"
+                });
+            }
 
             res.status(500).send({
                 result: "fail",

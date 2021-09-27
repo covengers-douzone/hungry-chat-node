@@ -107,113 +107,198 @@
 
     io.on('connection', socket => {
 
-
-        socket.on('unknown', (userNo, memeberCheck) => {
-            socketMemberCheck = memeberCheck;
-            const unknown = unknownJoin(socket.id, userNo)
-            userNoTest = userNo
-            console.log("unknown@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", unknown)
-        })
-        socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
-            const user = userJoin(socket.id, nickName, roomNo, participantNo, userNo);
-            roomNoTest = roomNo
-
-
-            // sub
+        // 유저가 사이트에 들어온 경우
+        socket.on('joinUser', async ({user}) => {
             const subClient = {
                 socketid: socket.id,
                 subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
             }
 
+            const chatService = require('./services/chat');
+            const roomNoList = await chatService.joinUser({
+                userNo: Number(user.userNo)
+            });
 
-            subClient['subClient'].subscribe(`${roomNo}`);
+            // 들어가있는 모든 방 구독시키기
+            roomNoList.map(roomNo => {
+                subClient['subClient'].subscribe(roomNo);
+            });
             subClient['subClient'].on('message', (roomName, message) => {
                 // message : JavaScript:배유진:안녕~:3:05 pm
                 const [redisRoomNo, redisUserno, chatNo, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
-                console.log("roomName", roomName, "message", message, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!@@@@@@@@@@@@@@@@")
-                socket.emit('message', {
+
+                socket.emit('getMessage', {
                     socketUserNo: redisUserno,
-                    chatNo: chatNo
+                    roomNo: redisRoomNo
                 });
             })
             subClients.push(subClient);
-
-            socket.join(user.room); // room 입장
-            callback({
-                status: 'ok'
-            })
-            //  Send users and room info to insert innerText of navigation bar
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            })
-        });
-        socket.on("deleteMessage", ({roomNo, chatNo}, callback) => {
-            io.to(roomNo).emit('deleteMessage', {
-                chatNo: chatNo,
-                room: roomNo,
-                users: getRoomUsers(roomNo)
-            })
-            callback({
-                status: 'ok'
-            })
-
         })
 
-
-        // Runs when client disconnects
-        socket.on('disconnect', async () => {
-
-            const unkwnown = unknownLeave(socket.id);
-            if(unkwnown){
-                console.log(socket.id)
-                const chatController = require('./controllers/chat');
-                console.log("unknown disconnect !!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@")
-                if (socketMemberCheck === false) {
-                    await chatController.deleteUnknown({
-                        body: {
-                            userNo: unkwnown.userNo
-                        },
-
-                    },   null ,     null)
-                }
-            }
-            const user = userLeave(socket.id);
-            if (user) {
-                const chatService = require('./services/chat');
-                // 회원: 강제로 종료 시킨 경우 대비
-                await chatService.leftRoom({
-                    participantNo: user.participantNo
-                });
-
-
-                // 나간 사람은 user 목록에서 지움
-                io.to(user.room).emit('roomUsers', {
-                    room: user.room,
-                    users: getRoomUsers(user.room)
-                });
-
-                //unsubscribe && 객체 없애기
-                const subClient = subClients.filter((subClient) => {
-                    return (subClient['socketid'] === socket.id)
-                });
-                if (subClient && Array.isArray(subClient) && subClient[0]) {
-                    subClient[0]['subClient'].unsubscribe();
-                    subClient[0]['subClient'].quit();
-                    subClients.splice(subClients.indexOf(subClient[0]));
-                }
+        // unknown 유저가 들어온 경우
+        socket.on('unknown', (userNo, memeberCheck) => {
+             socketMemberCheck = memeberCheck;
+             const unknown = unknownJoin(socket.id, userNo)
+             userNoTest = userNo
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+             console.log("unknown Join", unknown)
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+            console.log("ㅣ" )
+         })
+        
+        // 유저가 방에 join 한 경우
+         socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
+             const user = userJoin(socket.id, nickName, roomNo, participantNo, userNo);
+             roomNoTest = roomNo
 
 
-            }
-        });
-    })
-    const chat = require('./repository/chat');
-    chat.getGhostRoom(() => {
-    }).then(r => {
-        if (r) {
-            console.log("GhostRoom 제거");
-        } else {
-            console.log("GhostRoom 없음");
-        }
-    });
-})();
+             // sub
+             const subClient = {
+                 socketid: socket.id,
+
+                 subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
+             }
+ 
+ 
+             subClient['subClient'].subscribe(`${roomNo}`);
+             subClient['subClient'].on('message', (roomName, message) => {
+                 // message : JavaScript:배유진:안녕~:3:05 pm
+                 const [redisRoomNo, redisUserno, chatNo, redisMessage, redisHour, redisMin, notReadCount] = message.split(':');
+                 console.log("roomName", roomName, "message", message, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!@@@@@@@@@@@@@@@@")
+                 socket.emit('message', {
+                     socketUserNo: redisUserno,
+                     chatNo: chatNo
+                 });
+             })
+             subClients.push(subClient);
+ 
+             socket.join(user.room); // room 입장
+             callback({
+                 status: 'ok'
+             })
+             //  Send users and room info to insert innerText of navigation bar
+             io.to(user.room).emit('roomUsers', {
+                 room: user.room,
+                 users: getRoomUsers(user.room)
+             })
+         });
+         socket.on("deleteMessage", ({roomNo, chatNo}, callback) => {
+             io.to(roomNo).emit('deleteMessage', {
+                 chatNo: chatNo,
+                 room: roomNo,
+                 users: getRoomUsers(roomNo)
+             })
+             callback({
+                 status: 'ok'
+             })
+ 
+         })
+ 
+ 
+         // Runs when client disconnects
+         socket.on('disconnect', async () => {
+ 
+             const unkwnown = await unknownLeave(socket.id);
+
+
+             if(unkwnown){
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log(" unkwnown @@@@@@@@" , socket.id)
+                 console.log(unkwnown)
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                 console.log("ㅣ" )
+                  const chatController = require('./controllers/chat');
+
+                 if (socketMemberCheck === false) {
+                     // 룸 정보를 다 불러오고
+
+
+
+                     const chatService = require('./services/chat');
+                     const roomNoList = await chatService.joinUser({
+                         userNo: Number(unkwnown.userNo)
+                     });
+
+
+
+                     // 룸 마다 헤드카운터 - 1  감소 후
+
+
+                     roomNoList.map(async (e, i) => {
+                         console.log("roomNoList" , e)
+                     await chatController.updateHeadCount({
+                         body: {
+                             roomNo : e ,
+                             type : "exit" ,
+                         }
+                     }, null, null)
+                     })
+
+
+                     await chatController.deleteUnknown({
+                         body: {
+                             userNo: unkwnown.userNo
+                         },
+ 
+                     },   null ,     null)
+                 }
+             }
+             const user = userLeave(socket.id);
+             if (user) {
+                 const chatService = require('./services/chat');
+                 // 회원: 강제로 종료 시킨 경우 대비
+                 await chatService.leftRoom({
+                     participantNo: user.participantNo
+                 });
+ 
+ 
+                 // 나간 사람은 user 목록에서 지움
+                 io.to(user.room).emit('roomUsers', {
+                     room: user.room,
+                     users: getRoomUsers(user.room)
+                 });
+
+
+
+                 //unsubscribe && 객체 없애기
+                 const subClient = subClients.filter((subClient) => {
+                     return (subClient['socketid'] === socket.id)
+                 });
+                 if (subClient && Array.isArray(subClient) && subClient[0]) {
+                     subClient[0]['subClient'].unsubscribe();
+                     subClient[0]['subClient'].quit();
+                     subClients.splice(subClients.indexOf(subClient[0]));
+                 }
+ 
+ 
+             }
+         });
+     })
+     const chat = require('./repository/chat');
+     chat.getGhostRoom(() => {
+     }).then(r => {
+         if (r) {
+             console.log("GhostRoom 제거");
+         } else {
+             console.log("GhostRoom 없음");
+         }
+     });
+ })();
