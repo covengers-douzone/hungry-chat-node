@@ -942,6 +942,45 @@ const options = {
             },
 
             //post
+            "/api/addCalendarEvent": {
+                post:{
+                    tags: ["Room"],
+                    summary: "채팅 일정 이벤트 추가",
+                    requestBody: {
+                        content:{
+                            "application/json":{
+                                schema: {
+                                    properties:{
+                                        title:{
+                                            type:"string",
+                                            description:"일정 제목"
+                                        },
+                                        start:{
+                                            type:"string",
+                                            description:"일정 시작 시간"
+                                        },
+                                        end:{
+                                            type:"string",
+                                            description:"일정 끝 시간"
+                                        },
+                                        roomNo:{
+                                            type:"integer",
+                                            description:"참여 중인 채팅방 고유 번호"
+                                        },
+                                        Authorization:{
+                                            type:"string",
+                                            description:"인증 토큰"
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    security: {
+                        bearerAuth: []
+                    }
+                }
+            },
             "/api/getCalendarEvents": {
                 post:{
                     tags: ["Room"],
