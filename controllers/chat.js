@@ -1113,4 +1113,46 @@ module.exports = {
             next(e);
         }
     },
+    getCalendarEvents: async (req, res, next) => {
+        try {
+            const results = await models.Calendar.findAll({
+              where:{
+                  roomNo: req.body.roomNo
+              }
+            });
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+        } catch (e) {
+            next(e);
+        }
+    },
+    addCalendarEvent: async (req, res, next) => {
+        const roomNo = req.body.roomNo;
+        const title = req.body.title;
+        const start = req.body.start;
+        const end = req.body.end;
+
+        try {
+            const results = await models.Calendar.create({
+               roomNo, title, start, end
+            });
+
+
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: true,
+                    message: null
+                });
+
+        } catch (e) {
+            next(e);
+        }
+    },
 }

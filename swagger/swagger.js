@@ -942,6 +942,33 @@ const options = {
             },
 
             //post
+            "/api/getCalendarEvents": {
+                post:{
+                    tags: ["Room"],
+                    summary: "채팅 일정 이벤트 조회",
+                    requestBody: {
+                        content:{
+                            "application/json":{
+                                schema: {
+                                    properties:{
+                                        roomNo:{
+                                            type:"integer",
+                                            description:"참여 중인 채팅방 고유 번호"
+                                        },
+                                        Authorization:{
+                                            type:"string",
+                                            description:"인증 토큰"
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    security: {
+                        bearerAuth: []
+                    }
+                }
+            },
             "/api/message": {
                 post:{
                     tags: ["Chat"],
