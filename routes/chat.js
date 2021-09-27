@@ -17,6 +17,7 @@ const upload = multer({storage:storage});
 const router = express.Router();
 
 
+// get
 router.route('/roomlist/:userNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getRoomList);
 router.route('/chatlist/:roomNo/:offset/:limit').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatList);
 router.route('/chatlistCount/:roomNo/').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatListCount);
@@ -24,6 +25,8 @@ router.route('/getChat/:chatNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controll
 router.route('/chatlist/:roomNo/:offset/:limit/:contents').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getChatSearchList);
 // 중복, 차후에 처리할것.
 router.route('/chatlist/:roomNo').get(auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.getChatList);
+
+// post
 router.route('/message').post(upload.single( "file"),auth(["ROLE_USER","ROLE_UNKNOWN"]), controller.send);
 router.route('/createRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.createRoom);
 router.route('/createParticipant').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.createParticipant);
@@ -32,7 +35,6 @@ router.route('/getHeadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller
 router.route('/updateSendNotReadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateSendNotReadCount);
 router.route('/updateRoomNotReadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateRoomNotReadCount);
 router.route('/updateLastReadAt').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateLastReadAt);
-
 
 router.route('/deleteChat').post( auth(["ROLE_USER"]),controller.deleteChat);
 router.route('/getFriendList').post(auth(["ROLE_USER"]),controller.getFriendList);
@@ -46,6 +48,9 @@ router.route('/updateSettings').post(upload.single( "file"),auth(["ROLE_USER"]),
 router.route('/deleteUserInfo').post( auth(["ROLE_USER"]),controller.deleteUserInfo);
 router.route('/getLastReadNo').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNo);
 router.route('/getLastReadNoCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getLastReadNoCount);
+
+router.route('/getCalendarEvents').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getCalendarEvents);
+router.route('/addCalendarEvent').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.addCalendarEvent);
 
 // layer 변경
 router.route('/getFileListInRoom').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getFileListInRoom);

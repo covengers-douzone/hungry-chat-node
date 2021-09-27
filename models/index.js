@@ -21,6 +21,8 @@ const User = require('./User')(sequelize);
 const Participant = require('./Participant')(sequelize);
 const Chat = require('./Chat')(sequelize);
 const Friend = require('./Friend')(sequelize);
+const Calendar = require('./Calendar')(sequelize);
+
 
 // Room : Participant = 1 : N
 Room.hasMany(Participant, {
@@ -32,6 +34,19 @@ Room.hasMany(Participant, {
     }
 });
 Participant.belongsTo(Room, {
+    foreignKey: 'roomNo'
+});
+
+// Room : Calendar = 1 : N
+Room.hasMany(Calendar, {
+    foreignKey: {
+        name: 'roomNo',
+        allowNull: false,
+        constraints: false,
+        onDelete: 'cascade'
+    }
+});
+Calendar.belongsTo(Room, {
     foreignKey: 'roomNo'
 });
 
@@ -106,5 +121,9 @@ Friend.sync({
     force: process.env.TABLE_CREATE_ALWAYS === 'true', // true : (drop) table 데이터 없어질 수 있음
     alter: process.env.TABLE_ALTER_SYNC === 'true'     // 개발 끝나면 false로 하기
 })
+Calendar.sync({
+    force: process.env.TABLE_CREATE_ALWAYS === 'true', // true : (drop) table 데이터 없어질 수 있음
+    alter: process.env.TABLE_ALTER_SYNC === 'true'     // 개발 끝나면 false로 하기
+})
 
-module.exports = {sequelize, Chat, Participant, Room, User, Friend};
+module.exports = {sequelize, Chat, Participant, Room, User, Friend, Calendar};
