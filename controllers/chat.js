@@ -645,13 +645,18 @@ module.exports = {
     },
     send: async (req, res, next) => {
         try {
-            const {file, body: {roomNo, participantNo, text, headCount: notReadCount}} = req;
+            const {file, body: {roomNo, participantNo, text, headCount: notReadCount , markDown}} = req;
 
             let contents;
             let type;
             if (!file) {
                 contents = text;
-                type = "TEXT";
+                if(markDown === "true"){
+                    type = "MARKDOWN";
+                } else if(markDown === "false"){
+                    type = "TEXT";
+                }
+
             } else {
                 contents = file.path;
                 type = "IMG"
