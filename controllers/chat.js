@@ -645,14 +645,19 @@ module.exports = {
     },
     send: async (req, res, next) => {
         try {
-            const {file, body: {roomNo, participantNo, text, headCount: notReadCount}} = req;
+            const {file, body: {roomNo, participantNo, text, headCount: notReadCount , markDown}} = req;
 
             let contents;
             let type;
             if (!file) {
                 contents = text;
-                type = "TEXT";
-            } else if(file) {
+                if (markDown === "true") {
+                    type = "MARKDOWN";
+                } else if (markDown === "false") {
+                    type = "TEXT";
+                }
+            }
+            else if(file) {
                 const fileType = file.mimetype.split('/')[0];
                 console.log("filepath: ",   fileType);
                 if(fileType === 'video'){
