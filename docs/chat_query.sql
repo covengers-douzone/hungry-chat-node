@@ -1,5 +1,5 @@
 select * from user;
-select * from participant;
+select * from participant order by no desc;
 select * from chat;
 
 -- get room list 

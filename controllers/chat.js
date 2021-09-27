@@ -8,6 +8,7 @@ const fs = require('fs');
 const {user} = require("../redis-conf");
 const chatService = require('../services/chat');
 const {sequelize} = require("../models");
+const {type} = require("mocha/lib/utils");
 
 module.exports = {
     /*
@@ -266,7 +267,7 @@ module.exports = {
                 return room.no
             });
 
-            console.log("roomList :::: ", roomList);
+            //console.log("roomList :::: ", roomList);
 
             const results = await models.Room.findAll({
                 include: [
@@ -290,7 +291,7 @@ module.exports = {
             });
 
 
-            console.log("results ::: ", results);
+            //console.log("results ::: ", results);
 
             res
                 .status(200)
@@ -422,8 +423,13 @@ module.exports = {
                     }
                 ]
             })).map(room => {
-                return room.no
+                return {
+                    roomNo: room.no,
+                    participant: room.Participants[0]
+                }
             });
+
+            const room = roomList.map(room => room.roomNo);
 
             const results = await models.Room.findAll({
                 include: [
@@ -435,22 +441,39 @@ module.exports = {
                                 , attributes: {
                                     exclude: ['password', 'token']
                                 }
-                            }
-                        ]
-                    }
+                            },
+                        ],
+                    },
                 ],
                 where: {
                     no: {
-                        [Op.in]: roomList
+                        [Op.in]: room
                     }
                 }
             });
+
+            const unreadChatCount = await Promise.all(roomList.map(async room => {
+                return (await models.Chat.findAll({
+                    where: {
+                        roomNo : room.roomNo,
+                        createdAt: {
+                            [Op.gt]: room.participant.lastReadAt
+                        },
+                        participantNo: {
+                            [Op.notIn]: [room.participant.no]
+                        }
+                    }
+                })).length;
+            }));
 
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: results,
+                    data: {
+                        results: results,
+                        unreadChatCount: unreadChatCount
+                    },
                     message: null
                 });
         } catch (err) {
@@ -468,7 +491,12 @@ module.exports = {
                         model: models.Participant, as: 'Participant', required: true
                         , where: {
                             [`$Participant.roomNo$`]: roomNo
-                        }
+                        },
+                        include:[
+                            {
+                                model: models.User, required: true , attributes: {exclude: ['password', 'token']}
+                            }
+                        ]
                     }
                 ],
                 order: [['no', 'ASC']],
