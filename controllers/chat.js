@@ -651,15 +651,21 @@ module.exports = {
             let type;
             if (!file) {
                 contents = text;
-                if(markDown === "true"){
+                if (markDown === "true") {
                     type = "MARKDOWN";
-                } else if(markDown === "false"){
+                } else if (markDown === "false") {
                     type = "TEXT";
                 }
-
-            } else {
+            }
+            else if(file) {
+                const fileType = file.mimetype.split('/')[0];
+                console.log("filepath: ",   fileType);
+                if(fileType === 'video'){
+                    type = "VIDEO"
+                } else if(fileType === 'image'){
+                    type = "IMG"
+                }
                 contents = file.path;
-                type = "IMG"
             }
 
             const results = await models.Chat.create({
