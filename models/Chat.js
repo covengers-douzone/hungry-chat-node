@@ -17,7 +17,7 @@ module.exports = function(sequelize){
         },
         type: {
             field: 'type',
-            type: DataTypes.ENUM('TEXT','IMG'),
+            type: DataTypes.ENUM('TEXT','IMG','CODE','MARKDOWN'),
             allowNull: false
         },
         createdAt: {
@@ -26,7 +26,7 @@ module.exports = function(sequelize){
             allowNull: false,
             defaultValue: Sequelize.NOW
         },
-        낸: {
+        contents: {
             field: 'contents',
             type: DataTypes.TEXT('long'),
             allowNull: false

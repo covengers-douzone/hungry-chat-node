@@ -624,9 +624,15 @@ module.exports = {
             if (!file) {
                 contents = text;
                 type = "TEXT";
-            } else {
+            } else if(file) {
+                const fileType = file.mimetype.split('/')[0];
+                console.log("filepath: ",   fileType);
+                if(fileType === 'video'){
+                    type = "VIDEO"
+                } else if(fileType === 'image'){
+                    type = "IMG"
+                }
                 contents = file.path;
-                type = "IMG"
             }
 
             const results = await models.Chat.create({
