@@ -1,10 +1,20 @@
-const users = [];
+const participants = [];
 const unknowns = [];
-// Join user to chat
-function userJoin(id, username,room,participantNo ,userNo){
-    const user = {id, username,room,participantNo , userNo};
+const users = [];
+
+function userJoin(id,userLocalStorage){
+    const user = {id, userLocalStorage};
 
     users.push(user);
+
+    return user;
+}
+
+// Join participant to chat
+function participantJoin(id, username,room,participantNo ,userNo){
+    const user = {id, username,room,participantNo , userNo};
+
+    participants.push(user);
 
     return user;
 }
@@ -16,9 +26,9 @@ function unknownJoin (id , userNo){
     return unknown
 }
 
-// Get current user
-function getCurrentUser(id){
-    return users.find(user => user.id === id);
+// Get current participant
+function getCurrentParticipant(id){
+    return participants.find(participant => participant.id === id);
 }
 
 // Get current user
@@ -26,11 +36,19 @@ function getCurrentUnknown(userNo){
     return unknowns.find(user => user.userNo === userNo);
 }
 
-// User leaves chat
+// user leaves chat
 function userLeave(id){
     const index = users.findIndex(user => user.id === id);
     if(index !== -1){
         return users.splice(index,1)[0];
+    }
+}
+
+// participant leaves chat
+function participantLeave(id){
+    const index = participants.findIndex(participant => participant.id === id);
+    if(index !== -1){
+        return participants.splice(index,1)[0];
     }
 }
 
@@ -42,9 +60,14 @@ function unknownLeave(id){
     }
 }
 
-// Get room users
-function getRoomUsers(room){
-    return users.filter(user => user.room === room)
+// Get room participant
+function getRoomParticipants(room){
+    return participants.filter(participant => participant.room === room)
 }
 
-module.exports = {userJoin, unknownJoin ,unknownLeave, getCurrentUnknown, getCurrentUser, userLeave, getRoomUsers};
+// Get room participant
+function getUsers(){
+    return users;
+}
+
+module.exports = {userJoin, participantJoin, unknownJoin ,unknownLeave, getCurrentUnknown, getCurrentParticipant, participantLeave, getRoomParticipants, getUsers, userLeave};

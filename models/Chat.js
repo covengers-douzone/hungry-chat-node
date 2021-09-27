@@ -17,7 +17,7 @@ module.exports = function(sequelize){
         },
         type: {
             field: 'type',
-            type: DataTypes.ENUM('TEXT','IMG','CODE','MARKDOWN'),
+            type: DataTypes.ENUM('TEXT','IMG','CODE','MARKDOWN', 'VIDEO'),
             allowNull: false
         },
         createdAt: {
