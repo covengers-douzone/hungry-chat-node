@@ -86,13 +86,13 @@ ALTER TABLE FRIEND
 -- CHAT Table Create SQL
 CREATE TABLE CHAT
 (
-    `no`             INT                    NOT NULL    AUTO_INCREMENT COMMENT 'no', 
-    `roomNo`         INT                    NOT NULL    COMMENT 'roomNo', 
-    `type`           ENUM("TEXT", "IMG")    NOT NULL    DEFAULT 'text' COMMENT 'type', 
-    `createdAt`      DATETIME               NOT NULL    DEFAULT now() COMMENT '메시지 발송 시간', 
-    `contents`       LONGTEXT               NULL        COMMENT '채팅내용', 
-    `notReadCount`   INT                    NOT NULL    COMMENT '총 안 읽은 사람 수', 
-    `participantNo`  INT                    NULL        COMMENT 'participantNo', 
+    `no`             INT                                                  NOT NULL    AUTO_INCREMENT COMMENT 'no', 
+    `roomNo`         INT                                                  NOT NULL    COMMENT 'roomNo', 
+    `type`           ENUM("TEXT", "IMG","CODE", "MARKDOWN", "VIDEO" )    NOT NULL    DEFAULT 'text' COMMENT 'type', 
+    `createdAt`      DATETIME                                             NOT NULL    DEFAULT now() COMMENT '메시지 발송 시간', 
+    `contents`       LONGTEXT                                             NULL        COMMENT '채팅내용', 
+    `notReadCount`   INT                                                  NOT NULL    COMMENT '총 안 읽은 사람 수', 
+    `participantNo`  INT                                                  NULL        COMMENT 'participantNo', 
     CONSTRAINT PK_CHAT PRIMARY KEY (no)
 );
 

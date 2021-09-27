@@ -9,12 +9,15 @@
     const cors = require('cors'); // cross origin
     const {
         userJoin,
+        userLeave,
+        getUsers,
+        participantJoin,
         unknownJoin,
         unknownLeave,
-        getCurrentUser,
+        getCurrentParticipant,
         getCurrentUnknown,
-        userLeave,
-        getRoomUsers
+        participantLeave,
+        getRoomParticipants
     } = require('./utils/users.js');
 
 
@@ -109,6 +112,8 @@
 
         // 유저가 사이트에 들어온 경우
         socket.on('joinUser', async ({user}) => {
+            const user_ = userJoin(socket.id,user);
+
             const subClient = {
                 socketid: socket.id,
                 subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
@@ -133,6 +138,10 @@
                 });
             })
             subClients.push(subClient);
+
+            io.emit('currentUsers',{
+                users: getUsers()
+            });
         })
 
         // unknown 유저가 들어온 경우
@@ -157,7 +166,7 @@
         
         // 유저가 방에 join 한 경우
          socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
-             const user = userJoin(socket.id, nickName, roomNo, participantNo, userNo);
+             const user = participantJoin(socket.id, nickName, roomNo, participantNo, userNo);
              roomNoTest = roomNo
 
 
@@ -188,14 +197,14 @@
              //  Send users and room info to insert innerText of navigation bar
              io.to(user.room).emit('roomUsers', {
                  room: user.room,
-                 users: getRoomUsers(user.room)
+                 users: getRoomParticipants(user.room)
              })
          });
          socket.on("deleteMessage", ({roomNo, chatNo}, callback) => {
              io.to(roomNo).emit('deleteMessage', {
                  chatNo: chatNo,
                  room: roomNo,
-                 users: getRoomUsers(roomNo)
+                 users: getRoomParticipants(roomNo)
              })
              callback({
                  status: 'ok'
@@ -206,10 +215,27 @@
  
          // Runs when client disconnects
          socket.on('disconnect', async () => {
+
+             const user = userLeave(socket.id);
+             if (user) {
+
+                  // 나간 사람은 user 목록에서 지움
+                 io.emit('currentUsers',{
+                     users: getUsers()
+                 });
+
+                  //unsubscribe && 객체 없애기
+                  const subClient = subClients.filter((subClient) => {
+                      return (subClient['socketid'] === socket.id)
+                  });
+                  if (subClient && Array.isArray(subClient) && subClient[0]) {
+                      subClient[0]['subClient'].unsubscribe();
+                      subClient[0]['subClient'].quit();
+                      subClients.splice(subClients.indexOf(subClient[0]));
+                  }
+              }
  
              const unkwnown = await unknownLeave(socket.id);
-
-
              if(unkwnown){
                  console.log("ㅣ" )
                  console.log("ㅣ" )
@@ -261,22 +287,19 @@
                      },   null ,     null)
                  }
              }
-             const user = userLeave(socket.id);
-             if (user) {
+             const participant = participantLeave(socket.id);
+             if (participant) {
                  const chatService = require('./services/chat');
                  // 회원: 강제로 종료 시킨 경우 대비
                  await chatService.leftRoom({
-                     participantNo: user.participantNo
+                     participantNo: participant.participantNo
                  });
- 
  
                  // 나간 사람은 user 목록에서 지움
-                 io.to(user.room).emit('roomUsers', {
-                     room: user.room,
-                     users: getRoomUsers(user.room)
+                 io.to(participant.room).emit('roomUsers', {
+                     room: participant.room,
+                     users: getRoomParticipants(participant.room)
                  });
-
-
 
                  //unsubscribe && 객체 없애기
                  const subClient = subClients.filter((subClient) => {
@@ -287,8 +310,6 @@
                      subClient[0]['subClient'].quit();
                      subClients.splice(subClients.indexOf(subClient[0]));
                  }
- 
- 
              }
          });
      })
