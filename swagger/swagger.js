@@ -226,7 +226,7 @@ const options = {
                         },
                         type:{
                             type:"enum",
-                            description:"채팅 타입(TEXT, IMG, VIDEO)"
+                            description:"채팅 타입(TEXT, IMG, VIDEO, CODE, MARKDOWN)"
                         },
                         createdAt:{
                             type:"DATE",
@@ -255,7 +255,32 @@ const options = {
                             description: "친구로 등록되는 상대방의 사용자 고유 번호"
                         },
                     },
-                }
+                },
+                "Calendar": {
+                    type:"object",
+                    properties:{
+                        no:{
+                            type:"integer",
+                            description:"이벤트 고유 번호"
+                        },
+                        roomNo:{
+                            type:"integer",
+                            description:"이벤트가 속한 방 고유 번호"
+                        },
+                        title:{
+                            type:"string",
+                            description:"이벤트 제목"
+                        },
+                        start:{
+                            type:"string",
+                            description:"이벤트 시작일"
+                        },
+                        end:{
+                            type:"string",
+                            description:"이벤트 끝"
+                        },
+                    }
+                },
             }
         },
         tags: [
