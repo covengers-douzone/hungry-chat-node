@@ -107,7 +107,6 @@
     let socketMemberCheck = true
     const subClients = [];
 
-
     io.on('connection', socket => {
 
         // 유저가 사이트에 들어온 경우
@@ -165,18 +164,15 @@
          })
         
         // 유저가 방에 join 한 경우
-         socket.on('join', ({nickName, roomNo, participantNo, userNo}, callback) => {
+         socket.on('joinParticipant', ({nickName, roomNo, participantNo, userNo}, callback) => {
              const user = participantJoin(socket.id, nickName, roomNo, participantNo, userNo);
              roomNoTest = roomNo
-
 
              // sub
              const subClient = {
                  socketid: socket.id,
-
                  subClient: redis.createClient({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT})
              }
- 
  
              subClient['subClient'].subscribe(`${roomNo}`);
              subClient['subClient'].on('message', (roomName, message) => {
@@ -212,10 +208,10 @@
  
          })
  
- 
          // Runs when client disconnects
          socket.on('disconnect', async () => {
 
+             // user leave
              const user = userLeave(socket.id);
              if (user) {
 
@@ -234,7 +230,8 @@
                       subClients.splice(subClients.indexOf(subClient[0]));
                   }
               }
- 
+
+             // unknown user leave
              const unkwnown = await unknownLeave(socket.id);
              if(unkwnown){
                  console.log("ㅣ" )
@@ -255,38 +252,23 @@
 
                  if (socketMemberCheck === false) {
                      // 룸 정보를 다 불러오고
-
-
-
                      const chatService = require('./services/chat');
+                     const chatRepository = require('./repository/chat');
                      const roomNoList = await chatService.joinUser({
                          userNo: Number(unkwnown.userNo)
                      });
 
-
-
                      // 룸 마다 헤드카운터 - 1  감소 후
-
-
                      roomNoList.map(async (e, i) => {
                          console.log("roomNoList" , e)
-                     await chatController.updateHeadCount({
-                         body: {
-                             roomNo : e ,
-                             type : "exit" ,
-                         }
-                     }, null, null)
+                         await chatRepository.updateHeadCount({type: "exit", roomNo: e});
                      })
 
-
-                     await chatController.deleteUnknown({
-                         body: {
-                             userNo: unkwnown.userNo
-                         },
- 
-                     },   null ,     null)
+                     await chatRepository.deleteUnknown({userNo: unkwnown.userNo});
                  }
              }
+
+             // participant leave (participant : room 내의 user)
              const participant = participantLeave(socket.id);
              if (participant) {
                  const chatService = require('./services/chat');
