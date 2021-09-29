@@ -250,6 +250,52 @@ module.exports = {
             console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
         }
     },
+    updateHeadCount: async ({type, roomNo}) => {
+        try {
+            let results;
+            if (type === "join") {
+                results = await models.Room.update({
+                    'headCount': models.sequelize.Sequelize.literal('headCount + 1')
+                }, {
+                    where: {
+                        no: roomNo
+                    }
+                });
+            } else if (type === "exit") {
+                results = await models.Room.update({
+                    'headCount': models.sequelize.Sequelize.literal('headCount - 1')
+                }, {
+                    where: {
+                        no: roomNo
+                    }
+                });
+            }
+            return results;
+        } catch (err) {
+            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
+        }
+    },
+    deleteUnknown: async ({userNo}) => {
+        try {
+            const Partcipant = await models.Participant.update({
+                userNo: 1
+            }, {
+                where: {
+                    userNo: userNo,
+                }
+            });
+
+            const results = await models.User.destroy({
+                where: {
+                    no: userNo,
+                }
+            });
+
+            return results;
+        } catch (err) {
+            console.error(`Fetch-Api : getRoomList Error : ${err.status} ${err.message}`);
+        }
+    },
 
 
     // X
