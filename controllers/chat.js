@@ -574,7 +574,12 @@ module.exports = {
                         model: models.Participant, as: 'Participant', required: true
                         , where: {
                             [`$Participant.roomNo$`]: roomNo,
-                        }
+                        },
+                        include:[
+                            {
+                                model: models.User, required: true , attributes: {exclude: ['password', 'token']}
+                            }
+                        ]
                     }
                 ],
                 order: [['no', 'ASC']],
