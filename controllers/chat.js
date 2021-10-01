@@ -562,31 +562,44 @@ module.exports = {
             const contents = req.params.contents
 
             console.log("getChatSearchList @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" ,roomNo , limit , offset , contents)
-            const results = await models.Chat.findAll({
+            const searchedChatNoList = (await models.Chat.findAll({
                 where : {
                     contents :{
                         // [Op.like]: "%" + contents + "%"
                         [Op.like]: contents
+                    },
+                    roomNo: roomNo
+                }
+            })).map(chat => {return chat.no});
+
+            const results = await models.Chat.findAll({
+                where: {
+                    no: {
+                        [Op.gte]: searchedChatNoList[0],
                     }
                 },
                 include: [
-                    {
-                        model: models.Participant, as: 'Participant', required: true
-                        , where: {
-                            [`$Participant.roomNo$`]: roomNo,
-                        }
-                    }
-                ],
-                order: [['no', 'ASC']],
-                limit: Number(limit),
-                offset: Number(offset)
-
-            });
+                  {
+                      model: models.Participant, as: 'Participant', required: true
+                      , where: {
+                          [`$Participant.roomNo$`]: roomNo,
+                      },
+                      include:[
+                          {
+                              model: models.User, required: true , attributes: {exclude: ['password', 'token']}
+                          }
+                      ]
+                  }
+              ],
+              order: [['no', 'ASC']],
+            })
             res
                 .status(200)
                 .send({
                     result: 'success',
-                    data: results,
+                    data: {
+                        results,searchedChatNoList
+                    },
                     message: null
                 });
         } catch (err) {
