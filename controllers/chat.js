@@ -565,8 +565,7 @@ module.exports = {
             const searchedChatNoList = (await models.Chat.findAll({
                 where : {
                     contents :{
-                        // [Op.like]: "%" + contents + "%"
-                        [Op.like]: contents
+                        [Op.like]: `%${contents}%`
                     },
                     roomNo: roomNo
                 }
@@ -975,6 +974,7 @@ module.exports = {
     deleteChatNo: async (req, res, next) => {
         try {
             const chatNo = req.params.chatNo;
+            console.log('deleteChatNo------------',chatNo)
             const results = await models.Chat.destroy({
                 where: {
                     no: chatNo,
