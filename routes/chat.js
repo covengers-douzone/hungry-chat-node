@@ -37,6 +37,7 @@ router.route('/updateRoomNotReadCount').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),
 router.route('/updateLastReadAt').post(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.updateLastReadAt);
 
 router.route('/deleteChat').post( auth(["ROLE_USER"]),controller.deleteChat);
+router.route('/deleteChatNo/:chatNo').post( auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.deleteChatNo);
 router.route('/getFriendList').post(auth(["ROLE_USER"]),controller.getFriendList);
 router.route('/getFollowerList').post(auth(["ROLE_USER"]),controller.getFollowerList);
 router.route('/getOpenChatRoomList/:type').get(auth(["ROLE_USER","ROLE_UNKNOWN"]),controller.getOpenChatRoomList);
