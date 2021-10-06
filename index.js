@@ -89,16 +89,6 @@
         })
         .listen(process.env.PORT);
 
-    require('elastic-apm-node').start({
-        // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
-        appName: 'redis-03',
-        // Use if APM Server requires a token
-        secretToken: '',
-        // Set custom APM Server URL (default: http://localhost:8200)
-        serverUrl: 'http://127.0.0.1:8200',
-    });
-
-
     const io = socketio(server);
     //let subList = []
     let info = {}
