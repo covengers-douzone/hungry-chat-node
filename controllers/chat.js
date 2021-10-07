@@ -661,6 +661,8 @@ module.exports = {
 
             let contents;
             let type;
+
+
             if (!file) {
                 contents = text;
                 if (markDown === "true") {
@@ -677,8 +679,10 @@ module.exports = {
                 } else if(fileType === 'image'){
                     type = "IMG"
                 }
+
                 contents = file.path;
             }
+            console.log("fileType @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", type)
 
             const results = await models.Chat.create({
                 roomNo, type, contents, notReadCount, participantNo
