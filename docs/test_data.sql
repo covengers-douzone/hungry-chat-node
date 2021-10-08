@@ -1,5 +1,8 @@
 -- test data
+desc chat;
 use chat;
+select * from chat;
+insert into chat values(null, 7, 'TEXT', now(), '😀', 1, 5);
 
 -- user
 desc user;
@@ -27,6 +30,7 @@ select * from participant p join user u on p.userNo = u.no;
 update participant p join user u on p.userNo = u.no join room r on  p.roomNo = r.no 
 set status = 'false'
 where p.no > 1;
+
 -- where u.name = 'tae' and r.title = 'JavaScript';
 
 -- 방'JavaScript'에 host tae, member dada & we (participant no :1,2,3)
