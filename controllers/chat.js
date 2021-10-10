@@ -671,11 +671,14 @@ module.exports = {
             }
             else if(file) {
                 const fileType = file.mimetype.split('/')[0];
+                console.log('file?',file)
                 console.log("filepath: ",   fileType);
                 if(fileType === 'video'){
                     type = "VIDEO"
                 } else if(fileType === 'image'){
                     type = "IMG"
+                } else if(fileType === 'application'){
+                    type = "APPLICATION"
                 }
                 contents = file.path;
             }
