@@ -1181,7 +1181,8 @@ module.exports = {
             console.log("deleteParticipant" , req.body)
             const userNo = req.body.userNo; // 사용자.
             const roomNo = req.body.roomNo; // 사용자.
-            const results = await models.Participant.destroy({
+            const results = await models.Participant.update({userNo: 1} ,{
+
                 where:
                     {
                         userNo: userNo,
