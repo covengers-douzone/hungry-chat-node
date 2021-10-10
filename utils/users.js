@@ -65,9 +65,14 @@ function getRoomParticipants(room){
     return participants.filter(participant => participant.room === room)
 }
 
+function getUserNoParticipants(userNo){
+    return participants.filter(participant => participant.userNo === userNo)
+}
+
 // Get room participant
 function getUsers(){
     return users;
 }
 
-module.exports = {userJoin, participantJoin, unknownJoin ,unknownLeave, getCurrentUnknown, getCurrentParticipant, participantLeave, getRoomParticipants, getUsers, userLeave};
+module.exports = {userJoin, participantJoin, unknownJoin ,unknownLeave, getCurrentUnknown, getCurrentParticipant,
+    getUserNoParticipants , participantLeave, getRoomParticipants, getUsers, userLeave};
