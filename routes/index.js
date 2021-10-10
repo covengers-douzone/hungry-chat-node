@@ -2,7 +2,7 @@ const errorRouter = require('./error');
 const authorized = require('./authorized');
 const {swaggerUi, specs} = require('../swagger/swagger');
 // const {swaggerUi} = require('../openapi.yaml');
-// const YAML = require('yamljs');
+// const YAML = require('yamljs');y
 // const path = require("express-session");
 
 // const swaggerSpec = YAML.load(path.join(__dirname,"../openapi.yaml"));
