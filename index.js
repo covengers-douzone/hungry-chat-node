@@ -204,33 +204,39 @@
 
         socket.on("kick" , ({roomNo,userNo},callback) => {
             //  Send users and room info to insert innerText of navigation bar
-            console.log("roomNo" , roomNo)
-            console.log("userNo" , userNo)
-            console.log('getRoomParticipants',getRoomParticipants(roomNo))
-            console.log('getUserNoParticipants',getUserNoParticipants(roomNo))
-
             let participant;
             getRoomParticipants(roomNo).map((e,i) => {
 
                 if(e.userNo ===  userNo ){
                     participant = getCurrentParticipant(e.id);
                    participantLeave(e.id)
-
-         
-
                 }else{
 
                 }
             })
-        
             console.log("participant" ,participant)
-
             if(participant === undefined){
-
                                    participant = {
                                           userNo : 1,
                                    }
             }
+            callback({
+                status: 'ok'
+            })
+            io.to(roomNo).emit('kick', {
+                roomNo: roomNo,
+                participant: participant
+            })
+
+            // io.to('participant'+userNo).emit('kick')
+        })
+
+        socket.on("invite" , ({nickName, roomNo, participantNo, userNo},callback) => {
+            //  Send users and room info to insert innerText of navigation bar
+            let participant;
+
+            participantJoin(socket.id, nickName, roomNo, participantNo, userNo)
+
             callback({
                 status: 'ok'
             })
