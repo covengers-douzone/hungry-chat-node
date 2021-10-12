@@ -4,8 +4,9 @@
   "description": "> Node.js에서 Redis를 어떻게 활용 할까?",
   "main": "redis-conf.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "npx mocha"
+    "start": "node index.js",
+    "test": "npx mocha",
+    "debug": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
