@@ -15,6 +15,7 @@
         unknownJoin,
         unknownLeave,
         getCurrentParticipant,
+        getUserNoParticipants,
         getCurrentUnknown,
         participantLeave,
         getRoomParticipants
@@ -99,6 +100,31 @@
 
     io.on('connection', socket => {
 
+        socket.on("deleteMessage", ({roomNo, chatNo}, callback) => {
+             io.to(roomNo).emit('deleteMessage', {
+                 chatNo: chatNo,
+                 room: roomNo,
+                 users: getRoomParticipants(roomNo)
+             })
+             callback({
+                 status: 'ok'
+             })
+
+         })
+
+
+        socket.on("createdRoom",(invitedMembers, callback)=> {
+            const currentUsers = getUsers().map(user => Number(user.userLocalStorage.userNo))
+            console.log('invitedMembers',invitedMembers,currentUsers)
+            currentUsers.map(currentUser => {
+                io.to('user'+currentUser).emit('createRoom');
+            })
+
+            callback({
+                 status: 'ok'
+             })
+        })
+
         // 유저가 사이트에 들어온 경우
         socket.on('joinUser', async ({user}) => {
             const user_ = userJoin(socket.id,user);
@@ -127,6 +153,7 @@
                 });
             })
             subClients.push(subClient);
+            socket.join('user'+user.userNo);
 
             io.emit('currentUsers',{
                 users: getUsers()
@@ -138,19 +165,6 @@
              socketMemberCheck = memeberCheck;
              const unknown = unknownJoin(socket.id, userNo)
              userNoTest = userNo
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-             console.log("unknown Join", unknown)
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
-            console.log("ㅣ" )
          })
         
         // 유저가 방에 join 한 경우
@@ -177,6 +191,7 @@
              subClients.push(subClient);
  
              socket.join(user.room); // room 입장
+             socket.join('participant'+userNo);
              callback({
                  status: 'ok'
              })
@@ -186,18 +201,47 @@
                  users: getRoomParticipants(user.room)
              })
          });
-         socket.on("deleteMessage", ({roomNo, chatNo}, callback) => {
-             io.to(roomNo).emit('deleteMessage', {
-                 chatNo: chatNo,
-                 room: roomNo,
-                 users: getRoomParticipants(roomNo)
-             })
-             callback({
-                 status: 'ok'
-             })
- 
-         })
- 
+
+        socket.on("kick" , ({roomNo,userNo},callback) => {
+            //  Send users and room info to insert innerText of navigation bar
+            console.log("roomNo" , roomNo)
+            console.log("userNo" , userNo)
+            console.log('getRoomParticipants',getRoomParticipants(roomNo))
+            console.log('getUserNoParticipants',getUserNoParticipants(roomNo))
+
+            let participant;
+            getRoomParticipants(roomNo).map((e,i) => {
+
+                if(e.userNo ===  userNo ){
+                    participant = getCurrentParticipant(e.id);
+                   participantLeave(e.id)
+
+         
+
+                }else{
+
+                }
+            })
+        
+            console.log("participant" ,participant)
+
+            if(participant === undefined){
+
+                                   participant = {
+                                          userNo : 1,
+                                   }
+            }
+            callback({
+                status: 'ok'
+            })
+            io.to(roomNo).emit('kick', {
+                roomNo: roomNo,
+                participant: participant
+            })
+
+            // io.to('participant'+userNo).emit('kick')
+        })
+
          // Runs when client disconnects
          socket.on('disconnect', async () => {
 
@@ -224,20 +268,7 @@
              // unknown user leave
              const unkwnown = await unknownLeave(socket.id);
              if(unkwnown){
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log(" unkwnown @@@@@@@@" , socket.id)
-                 console.log(unkwnown)
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
-                 console.log("ㅣ" )
+
                   const chatController = require('./controllers/chat');
 
                  if (socketMemberCheck === false) {

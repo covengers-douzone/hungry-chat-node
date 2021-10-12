@@ -661,6 +661,8 @@ module.exports = {
 
             let contents;
             let type;
+
+
             if (!file) {
                 contents = text;
                 if (markDown === "true") {
@@ -671,14 +673,19 @@ module.exports = {
             }
             else if(file) {
                 const fileType = file.mimetype.split('/')[0];
+                console.log('file?',file)
                 console.log("filepath: ",   fileType);
                 if(fileType === 'video'){
                     type = "VIDEO"
                 } else if(fileType === 'image'){
                     type = "IMG"
+                } else if(fileType === 'application'){
+                    type = "APPLICATION"
                 }
+
                 contents = file.path;
             }
+            console.log("fileType @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", type)
 
             const results = await models.Chat.create({
                 roomNo, type, contents, notReadCount, participantNo
@@ -1166,6 +1173,93 @@ module.exports = {
 
         } catch (e) {
             next(e);
+        }
+    },
+    deleteParticipant: async (req, res) => {
+        try {
+
+            console.log("deleteParticipant" , req.body)
+            const userNo = req.body.userNo; // 사용자.
+            const roomNo = req.body.roomNo; // 사용자.
+            const results = await models.Participant.update({userNo: 1} ,{
+
+                where:
+                    {
+                        userNo: userNo,
+                        roomNo: roomNo
+                    }
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+
+
+        } catch (e) {
+            console.log(e.message);
+        }
+    },
+    addParticipant: async (req, res) => {
+        try {
+            // 1. 받아온 FriendNO 로 유저를 조회 및 no를 가져온다.(err -> 잘못된 이메일 입력)
+            // 2. 받아온 no를 통해 친구 리스트를 출력한다. 만약 이미 존재하는 친구일 경우 fail을 응답한다.
+            // 3. 가져온 no를 friendNo로, req로 받아온 no를 userNo로 하여 insert 한다.
+            // 4. response
+
+            const roomNo =  req.body.roomNo
+            const user = req.body.user
+
+            console.log("addParticipant @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!!!!!--------------------" , user)
+
+
+            const results = await models.Participant.create({
+                        role : "ROLE_MEMBER",
+                        status : 0 ,
+                        createdAt : new Date().toString(),
+                        lastReadAt : new Date().toString(),
+                        roomNo : roomNo,
+                        userNo : user.no,
+                        nickname : user.nickname
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+
+
+        } catch (e) {
+            console.log(e.message);
+        }
+    },
+    getParticipantNo: async (req, res) => {
+        try {
+
+            console.log("getParticipantNo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" ,req.body.participantNo)
+            const participantNo = req.body.participantNo
+
+
+            const results = await models.Participant.findOne({
+                where : {
+                    no : participantNo
+                }
+            })
+            res
+                .status(200)
+                .send({
+                    result: 'success',
+                    data: results,
+                    message: null
+                });
+
+
+        } catch (e) {
+            console.log(e.message);
         }
     },
 }
