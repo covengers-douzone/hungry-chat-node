@@ -3,6 +3,9 @@ select * from participant order by no desc;
 select * from chat;
 select * from room;
 
+-- alter table chat modify type ENUM("TEXT", "IMG", "CODE", "MARKDOWN", "VIDEO", "APPLICATION");
+desc chat;
+
 -- get room list 
 select *
 from room r
