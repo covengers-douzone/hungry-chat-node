@@ -89,7 +89,25 @@
 
         })
         .listen(process.env.PORT);
+    
+    // elastic cloud
+    // Add this to the VERY top of the first file loaded in your app
+    var apm = require('elastic-apm-node').start({
 
+    // Override the service name from package.json
+    // Allowed characters: a-z, A-Z, 0-9, -, _, and space
+    serviceName: 'covengers',
+    
+    // Use if APM Server requires a secret token
+    secretToken: 'zVYY3tRyhLRYAEbnfY',
+    
+    // Set the custom APM Server URL (default: http://localhost:8200)
+    serverUrl: 'https://ec98d0429d8745c48b2c2df8e63e1189.apm.eastus2.azure.elastic-cloud.com:443',
+    
+    // Set the service environment
+    environment: 'production'
+    })
+    
     const io = socketio(server);
     //let subList = []
     let info = {}
