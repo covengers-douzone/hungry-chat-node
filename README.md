@@ -78,3 +78,4 @@ hungry-chat-node
 ## 6. 이슈사항
 
 - [sequelize 1:N 연결인 경우 foreign key 설정](https://velog.io/@mong-head/Node-Sequelize-foreign-key-%EC%84%A4%EC%A0%95)
+- [MySQL 한글 깨짐 현상](https://velog.io/@mong-head/MySQL-%ED%95%9C%EA%B8%80-%EA%B9%A8%EC%A7%90-%ED%98%84%EC%83%81)
