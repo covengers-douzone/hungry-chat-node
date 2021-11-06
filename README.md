@@ -1,6 +1,8 @@
 # hungry-chat-node
 
-Back-end : Node API Server ( chat )
+* Back-end : Node API Server ( chat )
+* 채팅관련 API 위치
+   * socket, redis 연결
 
 ## 1. Environment
 
